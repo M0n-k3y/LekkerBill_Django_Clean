@@ -14,22 +14,24 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# The 'RENDER' variable is a common convention for hosting platforms.
-# We check if it's NOT present to determine if we are in local development.
-DEBUG = 'RENDER' not in os.environ
+# We read a 'DEBUG' environment variable, defaulting to 'False' in production.
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = []
 
-# The RENDER_EXTERNAL_HOSTNAME is a variable Railway provides with your app's public URL.
-RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
-if RENDER_EXTERNAL_HOSTNAME:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+# Railway provides the public domain in the RAILWAY_PUBLIC_DOMAIN variable.
+RAILWAY_PUBLIC_DOMAIN = os.getenv('RAILWAY_PUBLIC_DOMAIN')
+if RAILWAY_PUBLIC_DOMAIN:
+    ALLOWED_HOSTS.append(RAILWAY_PUBLIC_DOMAIN)
+
+# Also allow localhost for local development
+if DEBUG:
+    ALLOWED_HOSTS.append('127.0.0.1')
 
 # For security, Django checks the Origin header on POST requests.
 CSRF_TRUSTED_ORIGINS = []
-if RENDER_EXTERNAL_HOSTNAME:
-    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
-
+if RAILWAY_PUBLIC_DOMAIN:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RAILWAY_PUBLIC_DOMAIN}')
 
 # Application definition
 INSTALLED_APPS = [
