@@ -1,0 +1,99 @@
+{% extends "invoices/pdf_base.html" %}
+
+{% block pdf_title %}Invoice {{ invoice.invoice_number|default:invoice.id }}{% endblock %}
+
+{% block content %}
+    <div class="header">
+        <div class="company-logo">
+            {# ✅ CHANGED: Use .url instead of .path #}
+            {% if profile.logo %}
+                <img src="{{ profile.logo.url }}" alt="Company Logo">
+            {% endif %}
+        </div>
+        <div class="document-title">
+            <h1>INVOICE</h1>
+            <p>
+                <strong>{{ invoice.invoice_number|default:invoice.id }}</strong><br>
+                {% if invoice.status == 'paid' %}
+                    <span class="status-paid">PAID</span>
+                {% elif invoice.status == 'unpaid' %}
+                    <span class="status-unpaid">UNPAID</span>
+                {% else %}
+                    <span class="status-proforma">PROFORMA</span>
+                {% endif %}
+            </p>
+            {#Dates are now in the top-right block #}
+            <div class="meta-details">
+                <strong>Invoice Date:</strong> {{ invoice.invoice_date|date:"F j, Y" }}<br>
+                <strong>Due Date:</strong> {{ invoice.due_date|date:"F j, Y" }}
+            </div>
+        </div>
+    </div>
+
+    <div class="details-section">
+        <div class="company-details">
+            <strong>{{ profile.company_name|default:user.get_full_name|upper }}</strong><br>
+            {{ profile.address|default:''|linebreaksbr }}
+            {% if profile.city %}{{ profile.city }}{% endif %}
+            {% if profile.zip_code %}, {{ profile.zip_code }}{% endif %}<br>
+            {% if profile.phone %}Phone: {{ profile.phone }}{% endif %}
+        </div>
+        <div class="customer-details">
+            <strong>Bill To:</strong><br>
+            <strong>Customer:</strong> {{ invoice.customer.name }}<br>
+            <strong>Email:</strong> {{ invoice.customer.email }}<br>
+            <strong>Contact Number:</strong> {{ invoice.customer.phone }}
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th class="text-right">Quantity</th>
+                <th class="text-right">Unit Price</th>
+                <th class="text-right">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.items.all %}
+            <tr>
+                <td>
+                    <strong>{{ item.description }}</strong>
+                    {% if item.long_description %}<br><small class="text-muted">{{ item.long_description|linebreaksbr }}</small>{% endif %}
+                </td>
+                <td class="text-right">{{ item.quantity }}</td>
+                <td class="text-right">R{{ item.unit_price|floatformat:2 }}</td>
+                <td class="text-right">R{{ item.total|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals-section">
+        <table class="totals-table">
+            <tr>
+                <td class="label">Subtotal:</td>
+                <td class="text-right">R{{ invoice.subtotal|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td class="label">Tax ({{ invoice.tax_rate|floatformat:2 }}%):</td>
+                <td class="text-right">R{{ invoice.tax_amount|floatformat:2 }}</td>
+            </tr>
+            <tr class="grand-total">
+                <td class="label">TOTAL:</td>
+                <td class="text-right">R{{ invoice.total|floatformat:2 }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer-notes">
+        <h3>Payment Information</h3>
+        <p>
+            <strong>Bank:</strong> {{ profile.bank_name|default:'N/A' }}<br>
+            <strong>Account Name:</strong> {{ profile.account_holder_name|default:'N/A' }}<br>
+            <strong>Account Number:</strong> {{ profile.bank_account_number|default:'N/A' }}<br>
+            <strong>Reference:</strong> {{ invoice.invoice_number|default:invoice.id }}
+        </p>
+    </div>
+{% endblock %}

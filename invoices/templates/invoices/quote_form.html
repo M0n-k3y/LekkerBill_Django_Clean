@@ -1,0 +1,205 @@
+{% extends "invoices/base.html" %}
+
+{% block head_extra %}
+<style>
+    .item-form {
+        border-bottom: 1px solid var(--bs-border-color);
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+    .delete-checkbox-wrapper label { display: none; }
+    .delete-checkbox-wrapper { padding-top: 2rem; }
+</style>
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+
+    {% if form.non_field_errors or formset.non_form_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+            {{ formset.non_form_errors }}
+            {% for form_item in formset %}{{ form_item.non_field_errors }}{% endfor %}
+        </div>
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-header"><h1 class="h4 mb-0">{{ title }}</h1></div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    {{ form.customer.label_tag }} {{ form.customer }}
+                    {% if form.customer.errors %}<div class="invalid-feedback d-block">{{ form.customer.errors|striptags }}</div>{% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.status.label_tag }} {{ form.status }}
+                    {% if form.status.errors %}<div class="invalid-feedback d-block">{{ form.status.errors|striptags }}</div>{% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.tax_rate.label_tag }} {{ form.tax_rate }}
+                    {% if form.tax_rate.errors %}<div class="invalid-feedback d-block">{{ form.tax_rate.errors|striptags }}</div>{% endif %}
+                </div>
+                <div class="col-md-6 mb-3">
+                    {{ form.quote_date.label_tag }} {{ form.quote_date }}
+                    {% if form.quote_date.errors %}<div class="invalid-feedback d-block">{{ form.quote_date.errors|striptags }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+        <div class="card-header"><h2 class="h5 mb-0">Items</h2></div>
+        <div class="card-body">
+            {{ formset.management_form }}
+            <div id="quote-items-formset">
+                {% for item_form in formset %}
+                    <div class="row item-form align-items-start">
+                        {{ item_form.id }}
+
+                        <!--Inventory Selector Dropdown -->
+                        <div class="col-12 mb-2">
+                            <label class="form-label small">Select from Inventory</label>
+                            <select class="form-select form-select-sm inventory-select">
+                                <option value="">--- Or add a custom item below ---</option>
+                                {% for item in inventory_items %}
+                                    <option value="{{ item.id }}" data-description="{{ item.name }}" data-long_description="{{ item.description|default:'' }}" data-price="{{ item.unit_price|floatformat:2 }}">
+                                        {{ item.name }} (R{{ item.unit_price|floatformat:2 }})
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="col-12 mb-2">
+                            {{ item_form.description.label_tag }}
+                            {{ item_form.description }}
+                            {% if item_form.description.errors %}<div class="invalid-feedback d-block">{{ item_form.description.errors|striptags }}</div>{% endif %}
+                        </div>
+                        <div class="col-12 mb-2">{{ item_form.long_description }}</div>
+                        <div class="col-md-3 col-6 mb-2">{{ item_form.quantity.label_tag }} {{ item_form.quantity }}
+                            {% if item_form.quantity.errors %}<div class="invalid-feedback d-block">{{ item_form.quantity.errors|striptags }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-3 col-6 mb-2">{{ item_form.unit_price.label_tag }} {{ item_form.unit_price }}
+                            {% if item_form.unit_price.errors %}<div class="invalid-feedback d-block">{{ item_form.unit_price.errors|striptags }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-1 delete-checkbox-wrapper">
+                            <div class="d-none">{% if item_form.instance.pk %}{{ item_form.DELETE }}{% endif %}</div>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn"><i class="bi bi-x-lg"></i></button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <button type="button" id="add-item-btn" class="btn btn-secondary btn-sm"><i class="bi-plus-circle me-1"></i>Add another item</button>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% if form.instance.pk %}{% url 'quote_detail' form.instance.pk %}{% else %}{% url 'quote_list' %}{% endif %}" class="btn btn-secondary"><i class="bi-x-circle me-1"></i> Cancel</a>
+        <button type="submit" class="btn btn-primary"><i class="bi-check-circle-fill me-1"></i> Save Quote</button>
+    </div>
+</form>
+
+<!--Empty form template now includes the inventory selector -->
+<div id="empty-form-template" style="display: none;">
+    <div class="row item-form align-items-start">
+        {{ formset.empty_form.id }}
+        <div class="col-12 mb-2">
+            <label class="form-label small">Select from Inventory</label>
+            <select class="form-select form-select-sm inventory-select">
+                <option value="">--- Or add a custom item below ---</option>
+                {% for item in inventory_items %}
+                    <option value="{{ item.id }}" data-description="{{ item.name }}" data-long_description="{{ item.description|default:'' }}" data-price="{{ item.unit_price|floatformat:2 }}">
+                        {{ item.name }} (R{{ item.unit_price|floatformat:2 }})
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 mb-2">
+            {{ formset.empty_form.description.label_tag }}
+            {{ formset.empty_form.description }}
+        </div>
+        <div class="col-12 mb-2">{{ formset.empty_form.long_description }}</div>
+        <div class="col-md-3 col-6 mb-2">
+            {{ formset.empty_form.quantity.label_tag }}
+            {{ formset.empty_form.quantity }}
+        </div>
+        <div class="col-md-3 col-6 mb-2">
+            {{ formset.empty_form.unit_price.label_tag }}
+            {{ formset.empty_form.unit_price }}
+        </div>
+        <div class="col-md-1 delete-checkbox-wrapper">
+            <div class="d-none"></div>
+            <button type="button" class="btn btn-sm btn-outline-danger remove-item-btn"><i class="bi bi-x-lg"></i></button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }} {# This includes the parent template's scripts #}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    new TomSelect('#customer-select',{ create: false, sortField: { field: "text", direction: "asc" } });
+
+    const addItemBtn = document.getElementById('add-item-btn');
+    const formsetContainer = document.getElementById('quote-items-formset');
+    const emptyFormTemplate = document.getElementById('empty-form-template').innerHTML;
+    const totalFormsInput = document.getElementById('id_items-TOTAL_FORMS');
+
+    addItemBtn.addEventListener('click', function() {
+        let formNum = parseInt(totalFormsInput.value);
+        let newFormHtml = emptyFormTemplate.replace(/__prefix__/g, formNum);
+        formsetContainer.insertAdjacentHTML('beforeend', newFormHtml);
+        totalFormsInput.value = formNum + 1;
+    });
+
+    formsetContainer.addEventListener('click', function(e) {
+        const removeBtn = e.target.closest('.remove-item-btn');
+        if (removeBtn) {
+            const itemRow = removeBtn.closest('.item-form');
+            const deleteCheckbox = itemRow.querySelector('input[type="checkbox"][id$="-DELETE"]');
+            if (deleteCheckbox) {
+                deleteCheckbox.checked = true;
+                itemRow.style.display = 'none';
+            } else {
+                itemRow.remove();
+            }
+        }
+    });
+
+    //JavaScript to handle inventory selection
+    formsetContainer.addEventListener('change', function(e) {
+        if (e.target.classList.contains('inventory-select')) {
+            const selectedOption = e.target.options[e.target.selectedIndex];
+            const itemRow = e.target.closest('.item-form');
+
+            if (!itemRow || !selectedOption.value) {
+                return; // Do nothing if it's the placeholder or something went wrong
+            }
+
+            const description = selectedOption.dataset.description;
+            const longDescription = selectedOption.dataset.long_description;
+            const price = selectedOption.dataset.price;
+
+            // Find the input fields within this specific row
+            const descriptionInput = itemRow.querySelector('[name$="-description"]');
+            const longDescriptionInput = itemRow.querySelector('[name$="-long_description"]');
+            const priceInput = itemRow.querySelector('[name$="-unit_price"]');
+            const quantityInput = itemRow.querySelector('[name$="-quantity"]');
+
+            if (descriptionInput) descriptionInput.value = description;
+            if (longDescriptionInput) longDescriptionInput.value = longDescription;
+            if (priceInput) priceInput.value = price;
+            if (quantityInput) {
+                if (!quantityInput.value) {
+                    quantityInput.value = 1; // Default quantity to 1 if it's empty
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

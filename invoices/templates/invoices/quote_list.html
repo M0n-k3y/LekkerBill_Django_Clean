@@ -1,0 +1,36 @@
+{% extends "invoices/base.html" %}
+
+{% block title %}All Quotes{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1 class="h4 mb-0">All Quotes</h1>
+            <a href="{% url 'quote_create' %}" class="btn btn-primary btn-sm">
+                <i class="bi-plus-circle-fill me-1"></i> New Quote
+            </a>
+        </div>
+    </div>
+    <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+            {% for quote in quotes %}
+                <a href="{{ quote.get_absolute_url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                    <div>
+                        <h5 class="mb-1">Quote {{ quote.quote_number|default:quote.id }}</h5>
+                        <p class="mb-1 text-muted">{{ quote.customer.name }}</p>
+                        <small class="text-muted">Date: {{ quote.quote_date|date:"F j, Y" }}</small>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <span class="badge bg-secondary me-3">{{ quote.get_status_display }}</span>
+                        <span class="badge bg-secondary rounded-pill fs-6 me-3">R{{ quote.total|floatformat:2 }}</span>
+                        <i class="bi bi-chevron-right text-muted"></i>
+                    </div>
+                </a>
+            {% empty %}
+                <p class="list-group-item">No quotes found yet. <a href="{% url 'quote_create' %}">Create one?</a></p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

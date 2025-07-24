@@ -1,0 +1,106 @@
+/* === Existing Button Style === */
+a.button {
+    padding: 8px 12px;      /* a bit bigger for tapping */
+    margin: 4px 0;          /* space around */
+    background-color: #5b9bd5;
+    color: white !important;
+    border-radius: 4px;
+    text-decoration: none;
+    font-weight: bold;
+    display: inline-block;  /* so margin works nicely */
+    min-width: 140px;       /* minimum width for visibility */
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
+a.button:hover, a.button:focus {
+    background-color: #2a75bb;
+    outline: none;
+}
+
+/* === Mobile & Responsive Enhancements === */
+@media (max-width: 768px) {
+    .field-convert_button {
+        white-space: normal !important; /* Allow button text to wrap if needed */
+        padding: 6px 0 !important;
+    }
+
+    a.button {
+        display: block;
+        width: 100%;
+        min-width: auto;
+    }
+
+    .tabular.inline-related th,
+    .tabular.inline-related td {
+        white-space: nowrap;
+    }
+
+    /* Prevent overflow of action buttons */
+    .object-tools, .submit-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .object-tools a.button, .submit-row input {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    /* Reduce paddings/margins to save space */
+    .form-row, .inline-group {
+        padding: 6px;
+        margin: 4px 0;
+    }
+
+    /* Better tap spacing on small screens */
+    .selector-chosen, .add-another, .related-lookup {
+        font-size: 16px;
+    }
+
+    /* Reduce label widths to avoid wrapping */
+    .aligned label {
+        width: 100px;
+    }
+
+
+    /* ===== New: Mobile-friendly inline form layout for line items ===== */
+
+    /* Stack each inline item vertically */
+    .inline-group .dynamic-inline {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        padding: 8px 0 !important;
+        border-bottom: 1px solid #ddd !important;
+    }
+
+    /* Make each field container take full width */
+    .inline-group .dynamic-inline > div {
+        width: 100% !important;
+        margin-bottom: 6px !important;
+    }
+
+    /* Labels above inputs, bold */
+    .inline-group .dynamic-inline label {
+        display: block !important;
+        margin-bottom: 4px !important;
+        font-weight: 600 !important;
+    }
+
+    /* Inputs and textareas full width */
+    .inline-group .dynamic-inline input[type="text"],
+    .inline-group .dynamic-inline input[type="number"],
+    .inline-group .dynamic-inline textarea,
+    .inline-group .dynamic-inline select {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Make Add and Remove buttons bigger and easier to tap */
+    .inline-related .add-row,
+    .inline-related .delete-row {
+        padding: 8px 12px !important;
+        font-size: 14px !important;
+    }
+}

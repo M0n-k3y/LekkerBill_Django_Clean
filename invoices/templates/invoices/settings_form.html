@@ -1,0 +1,89 @@
+{% extends "invoices/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h2 mb-0">{{ title }}</h1>
+        <button type="submit" class="btn btn-primary btn-lg"><i class="bi-check-circle-fill me-1"></i> Save All Settings</button>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Company Information Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Company Information</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">{{ form.company_name.label_tag }} {{ form.company_name }}</div>
+                        <div class="col-md-6 mb-3">{{ form.phone.label_tag }} {{ form.phone }}</div>
+                        <div class="col-12 mb-3">{{ form.address.label_tag }} {{ form.address }}</div>
+                        <div class="col-md-6 mb-3">{{ form.city.label_tag }} {{ form.city }}</div>
+                        <div class="col-md-6 mb-3">{{ form.zip_code.label_tag }} {{ form.zip_code }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banking Details Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header">
+                    <h2 class="h5 mb-0">Banking Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">{{ form.bank_name.label_tag }} {{ form.bank_name }}</div>
+                        <div class="col-md-6 mb-3">{{ form.account_holder_name.label_tag }} {{ form.account_holder_name }}</div>
+                        <div class="col-md-6 mb-3">{{ form.bank_account_number.label_tag }} {{ form.bank_account_number }}</div>
+                        <div class="col-md-6 mb-3">{{ form.bank_branch_code.label_tag }} {{ form.bank_branch_code }}</div>
+                        <div class="col-md-6 mb-3">{{ form.bank_account_type.label_tag }} {{ form.bank_account_type }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Logo Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h2 class="h5 mb-0">Company Logo</h2></div>
+                <div class="card-body text-center">
+                    {% if form.instance.logo %}
+                        <img src="{{ form.instance.logo.url }}" alt="{{ form.instance.company_name }} Logo" class="img-fluid rounded mb-2" style="max-height: 150px;">
+                    {% else %}
+                        <div class="border rounded bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <p class="text-muted m-0">No logo</p>
+                        </div>
+                    {% endif %}
+                    <div class="mt-3">{{ form.logo.label_tag }} {{ form.logo }}</div>
+                </div>
+            </div>
+
+            <!-- Financial Settings Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h2 class="h5 mb-0">Financial Settings</h2></div>
+                <div class="card-body">
+                    <div class="mb-3">{{ form.vat_percentage.label_tag }} {{ form.vat_percentage }}</div>
+                </div>
+            </div>
+
+            <!-- Numbering Settings Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header"><h2 class="h5 mb-0">Numbering Settings</h2></div>
+                <div class="card-body">
+                    <div class="mb-3">{{ form.invoice_prefix.label_tag }} {{ form.invoice_prefix }}</div>
+                    <div class="mb-3">{{ form.invoice_next_number.label_tag }} {{ form.invoice_next_number }}</div>
+                    {% if form.invoice_next_number.help_text %}<small class="form-text text-muted d-block mb-3">{{ form.invoice_next_number.help_text }}</small>{% endif %}
+                    <hr>
+                    <div class="mb-3">{{ form.quote_prefix.label_tag }} {{ form.quote_prefix }}</div>
+                    <div class="mb-3">{{ form.quote_next_number.label_tag }} {{ form.quote_next_number }}</div>
+                    {% if form.quote_next_number.help_text %}<small class="form-text text-muted d-block">{{ form.quote_next_number.help_text }}</small>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}

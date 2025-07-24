@@ -1,0 +1,164 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}LekkerBill{% endblock %}</title>
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- THEME CSS - We will toggle these with JS -->
+    <link id="theme-light" rel="stylesheet" href="https://bootswatch.com/5/minty/bootstrap.min.css">
+    <link id="theme-dark" rel="stylesheet" href="https://bootswatch.com/5/superhero/bootstrap.min.css" disabled>
+
+    <!-- Tom-select CSS for better dropdowns -->
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.css" rel="stylesheet">
+
+    {% block head_extra %}
+        <!-- PWA Manifest Link -->
+        <link rel="manifest" href="{% static 'invoices/manifest.json' %}">
+    {% endblock %}
+</head>
+<body>
+    <!-- The navbar classes will be set by our theme script -->
+    <nav class="navbar navbar-expand-lg" id="main-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'dashboard' %}">LekkerBill</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                {% if user.is_authenticated %}
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'invoice_list' %}">Invoices</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'quote_list' %}">Quotes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'customer_list' %}">Customers</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'inventory_list' %}">Inventory</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <!-- THEME TOGGLE BUTTON -->
+                    <li class="nav-item">
+                        <a href="#" class="nav-link" id="theme-toggler" title="Toggle theme">
+                            <i class="bi" id="theme-icon"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi-person-circle me-1"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'settings_update' %}">Settings</a></li>
+                            <li><a class="dropdown-item" href="{% url 'subscription_detail' %}">My Subscription</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item">Log Out</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                {% else %}
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Log In</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+                    </li>
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <!-- Tom-select JS -->
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+
+    <!-- THEME TOGGLE SCRIPT -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const themeToggler = document.getElementById('theme-toggler');
+            const themeIcon = document.getElementById('theme-icon');
+            const lightTheme = document.getElementById('theme-light');
+            const darkTheme = document.getElementById('theme-dark');
+            const mainNavbar = document.getElementById('main-navbar');
+
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                    lightTheme.disabled = true;
+                    darkTheme.disabled = false;
+                    themeIcon.className = 'bi bi-sun-fill';
+                    mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-dark';
+                } else {
+                    document.documentElement.setAttribute('data-bs-theme', 'light');
+                    lightTheme.disabled = false;
+                    darkTheme.disabled = true;
+                    themeIcon.className = 'bi bi-moon-stars-fill';
+                    mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-primary';
+                }
+            }
+
+            themeToggler.addEventListener('click', (e) => {
+                e.preventDefault();
+                const currentTheme = localStorage.getItem('theme') || 'light';
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
+
+            // Apply saved theme on page load
+            const savedTheme = localStorage.getItem('theme') || 'light'; // Default to light
+            applyTheme(savedTheme);
+        });
+    </script>
+
+    {% block scripts %}
+        <!-- PWA Service Worker Registration -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register("{% static 'invoices/serviceworker.js' %}")
+                        .then(registration => {
+                            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                        })
+                        .catch(error => {
+                            console.log('ServiceWorker registration failed: ', error);
+                        });
+                });
+            }
+        </script>
+    {% endblock %}
+</body>
+</html>

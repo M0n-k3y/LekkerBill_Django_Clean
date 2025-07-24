@@ -1,0 +1,23 @@
+{% extends "invoices/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm text-center">
+            <div class="card-header">
+                <h1 class="h4 mb-0">{{ title }}</h1>
+            </div>
+            <div class="card-body">
+                <p>Are you sure you want to convert this quote into a new invoice? This action cannot be undone.</p>
+                <form action="{% url 'convert_quote_to_invoice' quote.id %}" method="post">
+                    {% csrf_token %}
+                    <a href="{{ quote.get_absolute_url }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-success">Yes, Convert to Invoice</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

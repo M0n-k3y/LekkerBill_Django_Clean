@@ -1,0 +1,86 @@
+{% extends "invoices/base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Dashboard</h1>
+
+{% if subscription.plan == 'free' and not subscription.is_currently_active %}
+<div class="alert alert-info d-flex align-items-center" role="alert">
+    <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+    <div>
+        You are currently on the <strong>Free Plan</strong>. <a href="{% url 'subscription_detail' %}" class="alert-link">Upgrade to Pro</a> to unlock unlimited customers, quotes, and invoices!
+    </div>
+</div>
+{% endif %}
+
+<div class="row">
+    {#Card 1: Customers #}
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="card-title">Total Customers</h5>
+                <p class="card-text fs-1 fw-bold">{{ customer_count }}</p>
+                <a href="{% url 'customer_list' %}" class="btn btn-primary">View Customers</a>
+            </div>
+        </div>
+    </div>
+    {#Card 2: Quotes #}
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="card-title">Total Quotes</h5>
+                <p class="card-text fs-1 fw-bold">{{ quote_count }}</p>
+                <a href="{% url 'quote_list' %}" class="btn btn-primary">View Quotes</a>
+            </div>
+        </div>
+    </div>
+    {#Card 3: Invoices #}
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="card-title">Total Invoices</h5>
+                <p class="card-text fs-1 fw-bold">{{ invoice_count }}</p>
+                <a href="{% url 'invoice_list' %}" class="btn btn-primary">View Invoices</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Recent Invoices</h2>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for invoice in recent_invoices %}
+                    <a href="{{ invoice.get_absolute_url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span>{{ invoice.invoice_number|default:invoice.id }} - {{ invoice.customer.name }}</span>
+                        <span class="text-muted small">{{ invoice.invoice_date|date:"F j, Y" }}</span>
+                    </a>
+                {% empty %}
+                    <div class="list-group-item text-muted">No recent invoices.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Recent Quotes</h2>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for quote in recent_quotes %}
+                    <a href="{{ quote.get_absolute_url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                        <span>{{ quote.quote_number|default:quote.id }} - {{ quote.customer.name }}</span>
+                        <span class="badge bg-secondary">{{ quote.get_status_display }}</span>
+                    </a>
+                {% empty %}
+                    <div class="list-group-item text-muted">No recent quotes.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

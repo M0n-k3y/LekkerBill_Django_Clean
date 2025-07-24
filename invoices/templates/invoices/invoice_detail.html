@@ -1,0 +1,153 @@
+{% extends "invoices/base.html" %}
+{% load url_filters %}
+
+{% block title %}Invoice {{ invoice.invoice_number|default:invoice.id }}{% endblock %}
+
+{% block head_extra %}
+    <style>
+        /* Hide the spinner by default */
+        #downloadBtn .spinner-border {
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <a href="{% url 'invoice_list' %}" class="btn btn-outline-secondary btn-sm mb-3">
+        <i class="bi-arrow-left"></i> Back to All Invoices
+    </a>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h1 class="h4 mb-0">Invoice {{ invoice.invoice_number|default:invoice.id }}</h1>
+            {% if invoice.status == 'paid' %}
+                <span class="badge bg-success">Paid</span>
+            {% elif invoice.status == 'unpaid' %}
+                <span class="badge bg-warning text-dark">Unpaid</span>
+            {% else %}
+                <span class="badge bg-info text-dark">Proforma</span>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">{{ invoice.customer.name }}</h5>
+            <p class="card-text mb-1">{{ invoice.customer.email }}</p>
+            <p class="card-text text-muted">Invoice Date: {{ invoice.invoice_date|date:"F j, Y" }}</p>
+            <p class="card-text text-muted">Due Date: {{ invoice.due_date|date:"F j, Y" }}</p>
+        </div>
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h2 class="h5 mb-0">Items</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-striped mb-0">
+                <thead>
+                    <tr>
+                        <th>Description</th>
+                        <th class="text-end">Qty</th>
+                        <th class="text-end">Unit Price</th>
+                        <th class="text-end">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in invoice.items.all %}
+                    <tr>
+                        <td>
+                            {{ item.description }}
+                            {% if item.long_description %}<small class="d-block text-muted">{{ item.long_description }}</small>{% endif %}
+                        </td>
+                        <td class="text-end">{{ item.quantity }}</td>
+                        <td class="text-end">R{{ item.unit_price|floatformat:2 }}</td>
+                        <td class="text-end">R{{ item.total|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-center text-muted">No items added to this invoice yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="card-body d-flex justify-content-end">
+             <div class="col-md-5 col-lg-4">
+                <ul class="list-group">
+                    <li class="list-group-item d-flex justify-content-between"><span>Subtotal:</span> <span>R{{ invoice.subtotal|floatformat:2 }}</span></li>
+                    <li class="list-group-item d-flex justify-content-between"><span>Tax ({{ invoice.tax_rate|floatformat:2 }}%):</span> <span>R{{ invoice.tax_amount|floatformat:2 }}</span></li>
+                    <li class="list-group-item d-flex justify-content-between active"><strong>Total:</strong> <strong>R{{ invoice.total|floatformat:2 }}</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="d-grid gap-2 d-md-flex justify-content-md-start mb-4">
+        <button id="downloadBtn" class="btn btn-primary" onclick="downloadPDF()">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            <span id="btnText"><i class="bi bi-download"></i> Download as PDF</span>
+        </button>
+        <a href="{% url 'invoice_update' invoice.id %}" class="btn btn-secondary"><i class="bi bi-pencil-square"></i> Edit</a>
+        <a href="{% url 'invoice_delete' invoice.id %}" class="btn btn-outline-danger"><i class="bi bi-trash"></i> Delete</a>
+    </div>
+
+    <a
+        href="https://wa.me/?text=Here%20is%20the%20link%20to%20your%20invoice:%20{{ public_share_url | url_encode }}"
+        target="_blank"
+        class="btn btn-success"
+        rel="noopener"
+        aria-label="Share this invoice on WhatsApp"
+    >
+        <i class="bi bi-whatsapp"></i> Share on WhatsApp
+    </a>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function downloadPDF() {
+        const button = document.getElementById("downloadBtn");
+        const spinner = button.querySelector(".spinner-border");
+        const btnText = button.querySelector("#btnText");
+
+        // Show spinner and disable button
+        spinner.style.display = 'inline-block';
+        btnText.style.display = 'none';
+        button.disabled = true;
+
+        const url = "{% url 'invoice_pdf' invoice.id %}";
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Failed to generate PDF.");
+                }
+                // Get filename from the 'Content-Disposition' header
+                const disposition = response.headers.get('content-disposition');
+                let filename = `invoice-{{ invoice.invoice_number|default:invoice.id }}.pdf`; // fallback
+                if (disposition && disposition.indexOf('attachment') !== -1) {
+                    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                    const matches = filenameRegex.exec(disposition);
+                    if (matches != null && matches[1]) {
+                      filename = matches[1].replace(/['"]/g, '');
+                    }
+                }
+                return response.blob().then(blob => ({blob, filename}));
+            })
+            .then(({blob, filename}) => {
+                // Create a link to trigger the download
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            })
+            .catch(error => {
+                console.error('Download error:', error);
+                alert('An error occurred while generating the PDF. Please try again.');
+            })
+            .finally(() => {
+                // Hide spinner and re-enable button
+                spinner.style.display = 'none';
+                btnText.style.display = 'inline-block';
+                button.disabled = false;
+            });
+    }
+</script>
+{% endblock %}

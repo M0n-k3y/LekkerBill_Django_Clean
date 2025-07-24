@@ -1,0 +1,30 @@
+{% extends "invoices/base.html" %}
+
+{% block title %}Confirm Deletion{% endblock %}
+
+{% block content %}
+<div class="card shadow-sm border-danger">
+    <div class="card-header bg-danger text-white">
+        <h1 class="h4 mb-0">Confirm Deletion</h1>
+    </div>
+    <div class="card-body">
+        {# This logic handles both objects with a name (Customer) and objects with a __str__ method (Invoice, Quote) #}
+        {% if form_type == 'Customer' %}
+            <p>Are you sure you want to delete the customer <strong>{{ object.name }}</strong>?</p>
+        {% else %}
+            <p>Are you sure you want to delete <strong>{{ object }}</strong>?</p>
+        {% endif %}
+        <p class="text-danger">This action cannot be undone.</p>
+
+        <form method="post">
+            {% csrf_token %}
+            {% if form_type == 'Customer' %}
+                <a href="{% url 'customer_list' %}" class="btn btn-secondary"><i class="bi-x-circle me-1"></i> Cancel</a>
+            {% else %}
+                <a href="{{ object.get_absolute_url }}" class="btn btn-secondary"><i class="bi-x-circle me-1"></i> Cancel</a>
+            {% endif %}
+            <button type="submit" class="btn btn-danger"><i class="bi-trash-fill me-1"></i> Yes, Delete</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

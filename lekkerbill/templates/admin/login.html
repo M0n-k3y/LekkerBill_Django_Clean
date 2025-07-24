@@ -1,0 +1,10 @@
+{% extends "admin/login.html" %}
+{% load static %}
+
+{% block branding %}
+<div style="text-align: center; padding: 10px;">
+    <a href="{% url 'admin:index' %}" class="header-logo">
+        <img src="{% static 'admin/img/logo.png' %}" alt="LekkerBill Logo" style="height: 60px;">
+    </a>
+</div>
+{% endblock %}

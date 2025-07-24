@@ -1,0 +1,90 @@
+{% extends "invoices/pdf_base.html" %}
+
+{% block pdf_title %}Quote {{ quote.quote_number|default:quote.id }}{% endblock %}
+
+{% block content %}
+    <div class="header">
+        <div class="company-logo">
+            {#CHANGED: Use .url instead of .path #}
+            {% if profile.logo %}
+                <img src="{{ profile.logo.url }}" alt="Company Logo">
+            {% endif %}
+        </div>
+        <div class="document-title">
+            <h1>QUOTE</h1>
+            <p>
+                <strong>{{ quote.quote_number|default:quote.id }}</strong><br>
+            </p>
+            <div class="meta-details">
+                <strong>Quote Date:</strong> {{ quote.quote_date|date:"F j, Y" }}<br>
+                {% if quote.valid_until %}
+                    <strong>Valid Until:</strong> {{ quote.valid_until|date:"F j, Y" }}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="details-section">
+        <div class="company-details">
+            <strong>{{ profile.company_name|default:user.get_full_name|upper }}</strong><br>
+            {{ profile.address|default:''|linebreaksbr }}
+            {% if profile.city %}{{ profile.city }}{% endif %}
+            {% if profile.zip_code %}, {{ profile.zip_code }}{% endif %}<br>
+            {% if profile.phone %}Phone: {{ profile.phone }}{% endif %}
+        </div>
+        <div class="customer-details">
+            <strong>Quote For:</strong><br>
+            <strong>Customer:</strong> {{ quote.customer.name }}<br>
+            <strong>Email:</strong> {{ quote.customer.email }}<br>
+            <strong>Contact Number:</strong> {{ quote.customer.phone }}
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th class="text-right">Quantity</th>
+                <th class="text-right">Unit Price</th>
+                <th class="text-right">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in quote.items.all %}
+            <tr>
+                <td>
+                    <strong>{{ item.description }}</strong>
+                    {% if item.long_description %}<br><small class="text-muted">{{ item.long_description|linebreaksbr }}</small>{% endif %}
+                </td>
+                <td class="text-right">{{ item.quantity }}</td>
+                <td class="text-right">R{{ item.unit_price|floatformat:2 }}</td>
+                <td class="text-right">R{{ item.total|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="totals-section">
+        <table class="totals-table">
+            <tr>
+                <td class="label">Subtotal:</td>
+                <td class="text-right">R{{ quote.subtotal|floatformat:2 }}</td>
+            </tr>
+            <tr>
+                <td class="label">Tax ({{ quote.tax_rate|floatformat:2 }}%):</td>
+                <td class="text-right">R{{ quote.tax_amount|floatformat:2 }}</td>
+            </tr>
+            <tr class="grand-total">
+                <td class="label">TOTAL:</td>
+                <td class="text-right">R{{ quote.total|floatformat:2 }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="footer-notes">
+        <h3>Acceptance</h3>
+        <p>
+            To accept this quote, please contact us directly.
+        </p>
+    </div>
+{% endblock %}

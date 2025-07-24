@@ -1,0 +1,33 @@
+{% extends "invoices/base.html" %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h1 class="h4 mb-0">Create an Account</h1>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                            {{ field }} {# The form widget now handles the 'form-control' class #}
+                            {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text|safe }}</small>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="invalid-feedback d-block">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

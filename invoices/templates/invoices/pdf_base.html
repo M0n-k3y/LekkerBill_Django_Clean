@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{% block pdf_title %}{% endblock %}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+            @bottom-center {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 9pt;
+                color: #888;
+            }
+        }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            font-size: 10pt;
+            color: #333;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5cm;
+        }
+        .company-logo img {
+            max-width: 200px;
+            max-height: 80px;
+        }
+        .document-title {
+            text-align: right;
+        }
+        .document-title h1 {
+            font-size: 28pt;
+            margin: 0;
+            color: #000;
+        }
+        .document-title p {
+            margin: 5px 0 0 0;
+            font-size: 11pt;
+        }
+        .status-paid { color: #198754; font-weight: bold; }
+        .status-unpaid { color: #ffc107; font-weight: bold; }
+        .status-proforma { color: #0dcaf0; font-weight: bold; }
+
+        .details-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5cm;
+            padding-top: 10px;
+            border-top: 2px solid #000;
+        }
+        .details-section > div {
+            width: 32%;
+            vertical-align: top;
+        }
+        .company-details, .customer-details, .meta-details {
+            line-height: 1.4;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1cm;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        thead th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            border-top: 2px solid #333;
+            border-bottom: 2px solid #333;
+        }
+        .text-right { text-align: right; }
+        .text-muted { color: #6c757d; }
+
+        .totals-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1cm;
+        }
+        .totals-table {
+            width: 45%;
+        }
+        .totals-table td {
+            border: none;
+            padding: 5px 10px;
+        }
+        .totals-table .label {
+            text-align: right;
+            font-weight: bold;
+        }
+        .grand-total {
+            font-size: 14pt;
+            border-top: 2px solid #000;
+            font-weight: bold;
+        }
+        .footer-notes {
+            margin-top: 2cm;
+            padding-top: 10px;
+            border-top: 1px solid #ccc;
+            font-size: 9pt;
+        }
+        .footer-notes h3 {
+            font-size: 11pt;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    {% block content %}{% endblock %}
+</body>
+</html>

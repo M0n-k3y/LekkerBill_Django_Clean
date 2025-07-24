@@ -1,0 +1,94 @@
+{% extends "invoices/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h1 class="h4 mb-0">{{ title }}</h1>
+            </div>
+            <div class="card-body">
+                <h2 class="h5">Current Plan: <span class="badge bg-primary fs-6">{{ subscription.get_plan_display }}</span></h2>
+
+                {% if subscription.plan == 'pro' %}
+                    {% if subscription.is_currently_active %}
+                        <p class="text-success">Your Pro plan is active.</p>
+                        {% if subscription.subscription_end_date %}
+                            <p>Your access is valid until: <strong>{{ subscription.subscription_end_date|date:"F j, Y" }}</strong></p>
+                        {% endif %}
+                        {% if subscription.status == 'cancelled' %}
+                             <div class="alert alert-warning">Your subscription has been cancelled and will not renew. You will retain Pro access until the date above.</div>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-danger">Your Pro plan has expired.</p>
+                    {% endif %}
+                {% else %}
+                     <p>Your free plan allows you to create up to {{ settings.FREE_PLAN_ITEM_LIMIT }} of each item (invoices, quotes, and customers) per month.</p>
+                {% endif %}
+
+                {% if not subscription.is_currently_active %}
+                <div class="mt-4">
+                    <h3 class="h6">This Month's Usage</h3>
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Invoices
+                            <span class="badge bg-secondary rounded-pill">{{ invoice_count }} / {{ settings.FREE_PLAN_ITEM_LIMIT }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Quotes
+                            <span class="badge bg-secondary rounded-pill">{{ quote_count }} / {{ settings.FREE_PLAN_ITEM_LIMIT }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Customers
+                            <span class="badge bg-secondary rounded-pill">{{ customer_count }} / {{ settings.FREE_PLAN_ITEM_LIMIT }}</span>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        {# ✅ THIS IS THE FINAL, CORRECTED LOGIC FOR THE ACTION CARD ✅ #}
+        {% if subscription.plan == 'pro' %}
+            {# This card shows if they are an active or cancelled Pro user #}
+            <div class="card shadow-sm border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Manage Subscription</h5>
+                    {% if subscription.status == 'active' %}
+                        <p class="card-text small text-muted">You can cancel your subscription at any time. Your Pro access will remain until the end of your current billing period.</p>
+                        <form action="{% url 'cancel_subscription' %}" method="post" onsubmit="return confirm('Are you sure you want to cancel your subscription?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Cancel Subscription</button>
+                        </form>
+                    {% elif subscription.status == 'cancelled' %}
+                        <p class="card-text small text-muted">Your subscription is set to cancel on {{ subscription.subscription_end_date|date:"F j, Y" }}.</p>
+                        <form action="{% url 'reactivate_subscription' %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-info">Reactivate Subscription</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% else %}
+            {# This card shows for Free users or expired Pro users #}
+            <div class="card shadow-sm border-success">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Upgrade to Pro</h5>
+                    <p class="card-text">Unlock unlimited usage for only R{{ pro_plan_price|floatformat:0 }}/month.</p>
+                    <form action="{% url 'upgrade_to_pro' %}" method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success btn-lg">
+                            {% if subscription.plan == 'pro' %}Renew Now{% else %}Upgrade Now{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

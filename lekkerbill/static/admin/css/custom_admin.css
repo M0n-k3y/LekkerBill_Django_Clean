@@ -1,0 +1,21 @@
+/* Remove blue background from admin header */
+#header {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Center the custom logo above the login box */
+.custom-header-logo {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.custom-header-logo img {
+    height: 60px;
+}
+
+/* Center the entire login page content again */
+.login .main {
+    max-width: 400px;
+    margin: 0 auto;
+}
