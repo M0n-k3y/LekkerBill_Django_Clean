@@ -164,9 +164,10 @@ PAYFAST_PASSPHRASE = os.getenv('PAYFAST_PASSPHRASE', 'ThisIsSwiftync1')
 # Use environment variable for testing flag, default to True for safety
 PAYFAST_TESTING = os.getenv('PAYFAST_TESTING', 'True') == 'True'
 
-# Dynamically set the base URL
-if RENDER_EXTERNAL_HOSTNAME:
-    PAYFAST_URL_BASE = f'https://{RENDER_EXTERNAL_HOSTNAME}'
+# This setting is not actively used but is kept for clarity.
+# The actual URLs are built dynamically in the views.
+if RAILWAY_PUBLIC_DOMAIN:
+    PAYFAST_URL_BASE = f'https://{RAILWAY_PUBLIC_DOMAIN}'
 else:
     PAYFAST_URL_BASE = 'http://127.0.0.1:8000'
 
