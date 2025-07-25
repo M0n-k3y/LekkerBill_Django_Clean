@@ -23,6 +23,9 @@ ALLOWED_HOSTS = []
 RAILWAY_PUBLIC_DOMAIN = os.getenv('RAILWAY_PUBLIC_DOMAIN')
 if RAILWAY_PUBLIC_DOMAIN:
     ALLOWED_HOSTS.append(RAILWAY_PUBLIC_DOMAIN)
+    # Also add the generic Railway domain for robustness.
+    # The leading dot is a wildcard for subdomains.
+    ALLOWED_HOSTS.append('.up.railway.app')
 
 # Also allow localhost for local development
 if DEBUG:
