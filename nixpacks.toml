@@ -2,4 +2,5 @@
 
 [phases.setup]
 # Add system packages needed by weasyprint for PDF generation
-nixPkgs = ["pkgs.cairo", "pkgs.pango", "pkgs.gdk-pixbuf"]
+# Also include Python itself to ensure it's available in the build environment.
+nixPkgs = ["pkgs.python312", "pkgs.cairo", "pkgs.pango", "pkgs.gdk-pixbuf"]
