@@ -51,6 +51,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -139,6 +140,9 @@ STATICFILES_DIRS = [
 
 # When running collectstatic, files will be copied here
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Add this line to use WhiteNoise's storage backend
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files (User-uploaded content like logos)
 MEDIA_URL = '/media/'
