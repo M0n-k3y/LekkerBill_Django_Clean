@@ -1,8 +1,13 @@
 # F:/Python Apps/LekkerBill_Django_Clean/nixpacks.toml
 
 [phases.setup]
-# Use apt to install packages on the underlying Debian system.
-# This is the most direct and reliable way to add the dependencies for weasyprint.
+# Use apt to install packages on the underlying Debian system for weasyprint.
 aptPkgs = [
     "libcairo2", "libpango-1.0-0", "libgdk-pixbuf2.0-0"
 ]
+
+[phases.build]
+# Explicitly define the build command to prevent Nixpacks from
+# automatically and incorrectly trying to run 'migrate'.
+# We only want to install our Python packages during the build.
+cmds = ["pip install -r requirements.txt"]
