@@ -1,0 +1,5 @@
+# F:/Python Apps/LekkerBill_Django_Clean/nixpacks.toml
+
+[phases.setup]
+# Add system packages needed by weasyprint for PDF generation
+nixPkgs = ["pkgs.cairo", "pkgs.pango", "pkgs.gdk-pixbuf"]
