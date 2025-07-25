@@ -1,4 +1,4 @@
-Django==4.2.14
+Django==5.2.3
 gunicorn
 python-dotenv
 weasyprint
