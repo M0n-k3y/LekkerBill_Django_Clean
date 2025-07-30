@@ -92,10 +92,8 @@ if 'DATABASE_URL' in os.environ:
     # We are in production on Railway, use the provided database URL
     DATABASES = {
         'default': dj_database_url.config(
-            # Feel free to alter this value to suit your application needs.
             conn_max_age=600,
-            conn_health_checks=True,
-            ssl_require=True,
+            conn_health_checks=True, # Recommended for production
         )
     }
 else:
