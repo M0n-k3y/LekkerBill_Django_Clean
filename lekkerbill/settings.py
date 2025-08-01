@@ -165,8 +165,8 @@ FREE_PLAN_ITEM_LIMIT = 5
 PRO_PLAN_PRICE = Decimal('79.00')
 
 # --- PayFast Configuration ---
-PAYFAST_MERCHANT_ID = os.getenv('PAYFAST_MERCHANT_ID', '10040564')
-PAYFAST_MERCHANT_KEY = os.getenv('PAYFAST_MERCHANT_KEY', '44jyetpmptdyc')
+PAYFAST_MERCHANT_ID = os.getenv('PAYFAST_MERCHANT_ID', '31002113')
+PAYFAST_MERCHANT_KEY = os.getenv('PAYFAST_MERCHANT_KEY', 'ib4sjzh8y6o6r')
 PAYFAST_PASSPHRASE = os.getenv('PAYFAST_PASSPHRASE', 'ThisIsSwiftync1')
 
 # Use environment variable for testing flag, default to True for safety
