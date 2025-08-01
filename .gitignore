@@ -1,24 +1,40 @@
 # F:/Python Apps/LekkerBill_Django_Clean/.gitignore
 
-# Environment variables
+# Environment variables & Secrets
 .env
+local_settings.py
 
-# Python
+# Python cache and compiled files
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+
+# Local Database
+db.sqlite3
+*.sqlite3
+db.sqlite3-journal
 
 # Virtual Environment
 venv/
-
-# Database
-db.sqlite3
-*.sqlite3
+env/
+.venv/
 
 # Static and Media files collected by Django
-staticfiles/
-media/
+# The leading slash ensures it only matches at the root
+/staticfiles/
+/media/
+
+# Distribution / packaging
+build/
+dist/
+eggs/
+*.egg-info/
+*.egg
 
 # IDE / Editor specific
 .idea/
 .vscode/
 *.swp
+
+# Log files
+*.log
