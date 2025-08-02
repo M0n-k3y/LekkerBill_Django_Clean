@@ -164,10 +164,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 FREE_PLAN_ITEM_LIMIT = 5
 PRO_PLAN_PRICE = Decimal('79.00')
 
+# F:/Python Apps/LekkerBill_Django_Clean/lekkerbill/settings.py
+
+# ...
 # --- PayFast Configuration ---
-PAYFAST_MERCHANT_ID = os.getenv('PAYFAST_MERCHANT_ID', '31002113')
-PAYFAST_MERCHANT_KEY = os.getenv('PAYFAST_MERCHANT_KEY', 'ib4sjzh8y6o6r')
-PAYFAST_PASSPHRASE = os.getenv('PAYFAST_PASSPHRASE', 'ThisIsSwiftync1')
+PAYFAST_MERCHANT_ID = os.getenv('PAYFAST_MERCHANT_ID')
+PAYFAST_MERCHANT_KEY = os.getenv('PAYFAST_MERCHANT_KEY')
+PAYFAST_PASSPHRASE = os.getenv('PAYFAST_PASSPHRASE')
+
+# Use environment variable for testing flag, default to False for production
+PAYFAST_TESTING = os.getenv('PAYFAST_TESTING', 'False') == 'True'
+
+# Add a check to ensure production credentials are set when not in DEBUG mode
+if not DEBUG and not all([PAYFAST_MERCHANT_ID, PAYFAST_MERCHANT_KEY, PAYFAST_PASSPHRASE]):
+    raise ValueError("In production, PAYFAST environment variables must be set.")
 
 # Use environment variable for testing flag, default to True for safety
 PAYFAST_TESTING = os.getenv('PAYFAST_TESTING', 'True') == 'True'
