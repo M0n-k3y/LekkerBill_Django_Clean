@@ -8,11 +8,12 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Install system-level dependencies.
-# We need weasyprint's dependencies AND the postgresql client for psycopg2.
+# We need weasyprint's dependencies, its font library, AND the postgresql client.
 RUN apt-get update && apt-get install -y \
     libcairo2 \
     libpango-1.0-0 \
     libgdk-pixbuf2.0-0 \
+    libpangoft2-1.0-0 \
     postgresql-client \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
