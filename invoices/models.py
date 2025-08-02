@@ -66,9 +66,8 @@ class Subscription(models.Model):
 
     @property
     def is_currently_active(self):
-        if self.plan == 'free':
-            return True
-        if self.plan == 'pro' and self.subscription_end_date:
+
+        if self.plan == 'pro' and self.status == 'active' and self.subscription_end_date:
             return self.subscription_end_date >= timezone.now().date()
         return False
 

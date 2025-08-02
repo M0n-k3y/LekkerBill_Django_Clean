@@ -13,6 +13,12 @@ try:
     django.setup()
     print("✅ Django initialized successfully.")
 
+    # Run the collectstatic command
+    print("\n--> Collecting static files...")
+    # The --noinput flag is crucial for non-interactive environments
+    call_command('collectstatic', '--noinput')
+    print("✅ SUCCESS: Static files collected.")
+
     # Run the migrate command
     print("\n--> Running database migrations...")
     call_command('migrate')
