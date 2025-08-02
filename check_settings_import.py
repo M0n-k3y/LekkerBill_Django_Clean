@@ -2,24 +2,24 @@
 import os
 import sys
 
-print("--- SETTINGS IMPORT CHECK INITIATED ---")
-print("Attempting to import Django settings module...")
+print("--- DJANGO FULL SETUP CHECK INITIATED ---")
+print("This script will attempt to fully initialize the Django application.")
 
 try:
     # Set the DJANGO_SETTINGS_MODULE environment variable just like manage.py does
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lekkerbill.settings')
 
-    # The critical import that is likely failing
-    from django.conf import settings
+    # Import the core django library
+    import django
 
-    # If the import succeeds, we must access a setting to force it to be fully configured.
-    # This will trigger any lazy-loading errors.
-    _ = settings.SECRET_KEY
-
-    print("✅ SUCCESS: Django settings module imported successfully.")
+    # This is the critical function that loads the settings, configures logging,
+    # and populates the application registry. This is the step that is failing.
+    print("Attempting to run django.setup()...")
+    django.setup()
+    print("✅ SUCCESS: django.setup() completed without errors.")
 
 except Exception as e:
-    print(f"❌ FATAL: Failed to import Django settings module.")
+    print(f"❌ FATAL: An exception occurred during django.setup().")
     print("--- TRACEBACK ---")
     import traceback
     # This will print the full traceback to standard output, which will appear in the deploy logs.
@@ -28,4 +28,4 @@ except Exception as e:
     # Exit with a non-zero status code to halt the release phase
     sys.exit(1)
 
-print("--- SETTINGS IMPORT CHECK COMPLETE ---")
+print("--- DJANGO FULL SETUP CHECK COMPLETE ---")
