@@ -18,6 +18,13 @@ from functools import wraps
 from payfast.forms import PayFastForm
 
 
+def landing_page(request):
+    """Displays the public landing page."""
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    return render(request, 'invoices/landing_page.html')
+
+
 # --- Custom Decorators ---
 
 def check_subscription_limit(model_name):
@@ -118,7 +125,8 @@ def upgrade_to_pro(request):
         'cancel_url': request.build_absolute_uri(reverse('payment_cancel')),
         'notify_url': request.build_absolute_uri(reverse('payfast:payfast_notify_url')),
         'm_payment_id': subscription.id,
-        'amount': settings.PRO_PLAN_PRICE,
+        # ✅ CHANGE THIS LINE: Explicitly format the amount
+        'amount': f"{settings.PRO_PLAN_PRICE:.2f}",
         'item_name': f'LekkerBill Pro Monthly Subscription (R{settings.PRO_PLAN_PRICE})',
         'item_description': 'Unlock unlimited invoices, quotes, and customers.',
         'name_first': request.user.first_name or '',

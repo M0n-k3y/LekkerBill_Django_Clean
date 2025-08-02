@@ -1,0 +1,20 @@
+{% extends "invoices/base.html" %}
+
+{% block title %}Welcome to LekkerBill{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h1 class="display-4">Welcome to LekkerBill</h1>
+            <p class="lead">Your simple and powerful invoicing solution.</p>
+            <hr class="my-4">
+            <p>Create and manage invoices with ease. Get started today!</p>
+            <p class="lead">
+                <a class="btn btn-primary btn-lg" href="{% url 'signup' %}" role="button">Sign Up</a>
+                <a class="btn btn-secondary btn-lg" href="{% url 'login' %}" role="button">Log In</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
