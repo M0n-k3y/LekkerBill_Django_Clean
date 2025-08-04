@@ -166,7 +166,6 @@ PRO_PLAN_PRICE = Decimal('79.00')
 
 # F:/Python Apps/LekkerBill_Django_Clean/lekkerbill/settings.py
 
-# ...
 # --- PayFast Configuration ---
 PAYFAST_MERCHANT_ID = os.getenv('PAYFAST_MERCHANT_ID')
 PAYFAST_MERCHANT_KEY = os.getenv('PAYFAST_MERCHANT_KEY')
