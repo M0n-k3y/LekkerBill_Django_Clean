@@ -172,15 +172,13 @@ PAYFAST_MERCHANT_ID = os.getenv('PAYFAST_MERCHANT_ID')
 PAYFAST_MERCHANT_KEY = os.getenv('PAYFAST_MERCHANT_KEY')
 PAYFAST_PASSPHRASE = os.getenv('PAYFAST_PASSPHRASE')
 
-# Use environment variable for testing flag, default to False for production
-PAYFAST_TESTING = os.getenv('PAYFAST_TESTING', 'False') == 'True'
+# Use environment variable for testing flag.
+# It's safer to default to DEBUG status. If DEBUG is True, use sandbox.
+PAYFAST_TESTING = os.getenv('PAYFAST_TESTING', str(DEBUG)) == 'True'
 
 # Add a check to ensure production credentials are set when not in DEBUG mode
-if not DEBUG and not all([PAYFAST_MERCHANT_ID, PAYFAST_MERCHANT_KEY, PAYFAST_PASSPHRASE]):
-    raise ValueError("In production, PAYFAST environment variables must be set.")
-
-# Use environment variable for testing flag, default to True for safety
-PAYFAST_TESTING = os.getenv('PAYFAST_TESTING', 'True') == 'True'
+if not DEBUG and not all([PAYFAST_MERCHANT_ID, PAYFAST_MERCHANT_KEY]):
+    raise ValueError("In production, PAYFAST_MERCHANT_ID and PAYFAST_MERCHANT_KEY must be set.")
 
 # This setting is not actively used but is kept for clarity.
 # The actual URLs are built dynamically in the views.
