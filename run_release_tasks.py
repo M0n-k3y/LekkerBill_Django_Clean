@@ -13,6 +13,25 @@ try:
     django.setup()
     print("✅ Django initialized successfully.")
 
+    # --- ✅ NEW DEBUGGING STEP ---
+    print("\n--> DEBUG: Listing contents of the source static directory...")
+    # The path inside the container will be /app/invoices/static
+    source_static_dir = os.path.join(os.path.dirname(__file__), 'invoices', 'static')
+    if os.path.exists(source_static_dir):
+        print(f"Directory found: {source_static_dir}")
+        for root, dirs, files in os.walk(source_static_dir):
+            # To make the output cleaner, remove the base path
+            relative_root = os.path.relpath(root, source_static_dir)
+            if relative_root == '.':
+                relative_root = ''
+            print(f"  - Subdirectory: {relative_root}/")
+            for filename in files:
+                print(f"    - File: {os.path.join(relative_root, filename)}")
+    else:
+        print(f"❌❌❌ WARNING: Source static directory NOT FOUND at {source_static_dir}")
+    print("--- END DEBUG ---")
+    # --- END OF NEW DEBUGGING STEP ---
+
     # Run the collectstatic command
     print("\n--> Collecting static files...")
     # The --noinput flag is crucial for non-interactive environments
