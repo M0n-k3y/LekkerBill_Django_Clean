@@ -1,4 +1,7 @@
+// Version 2: Forcing a Git update
+
 const CACHE_NAME = 'lekkerbill-cache-v1';
+
 // Add the URLs of the core files you want to cache.
 const URLS_TO_CACHE = [
   '/',
