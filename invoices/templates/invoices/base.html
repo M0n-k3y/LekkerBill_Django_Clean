@@ -1,3 +1,4 @@
+{% extends "invoices/base.html" %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -19,6 +20,7 @@
     {% block head_extra %}
         <!-- PWA Manifest Link -->
         <link rel="manifest" href="{% static 'invoices/manifest.json' %}">
+        <link rel="icon" href="{% static 'invoices/images/icons/icon-192x192.png' %}" type="image/png">
     {% endblock %}
 </head>
 <body>
@@ -109,56 +111,61 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const themeToggler = document.getElementById('theme-toggler');
-            const themeIcon = document.getElementById('theme-icon');
-            const lightTheme = document.getElementById('theme-light');
-            const darkTheme = document.getElementById('theme-dark');
-            const mainNavbar = document.getElementById('main-navbar');
 
-            function applyTheme(theme) {
-                if (theme === 'dark') {
-                    document.documentElement.setAttribute('data-bs-theme', 'dark');
-                    lightTheme.disabled = true;
-                    darkTheme.disabled = false;
-                    themeIcon.className = 'bi bi-sun-fill';
-                    mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-dark';
-                } else {
-                    document.documentElement.setAttribute('data-bs-theme', 'light');
-                    lightTheme.disabled = false;
-                    darkTheme.disabled = true;
-                    themeIcon.className = 'bi bi-moon-stars-fill';
-                    mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-primary';
+            if (themeToggler) {
+                const themeIcon = document.getElementById('theme-icon');
+                const lightTheme = document.getElementById('theme-light');
+                const darkTheme = document.getElementById('theme-dark');
+                const mainNavbar = document.getElementById('main-navbar');
+
+                function applyTheme(theme) {
+                    if (theme === 'dark') {
+                        document.documentElement.setAttribute('data-bs-theme', 'dark');
+                        lightTheme.disabled = true;
+                        darkTheme.disabled = false;
+                        themeIcon.className = 'bi bi-sun-fill';
+                        mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-dark';
+                    } else {
+                        document.documentElement.setAttribute('data-bs-theme', 'light');
+                        lightTheme.disabled = false;
+                        darkTheme.disabled = true;
+                        themeIcon.className = 'bi bi-moon-stars-fill';
+                        mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-primary';
+                    }
                 }
+
+                themeToggler.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const currentTheme = localStorage.getItem('theme') || 'light';
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    localStorage.setItem('theme', newTheme);
+                    applyTheme(newTheme);
+                });
+
+                // Apply saved theme on page load
+                const savedTheme = localStorage.getItem('theme') || 'light'; // Default to light
+                applyTheme(savedTheme);
             }
-
-            themeToggler.addEventListener('click', (e) => {
-                e.preventDefault();
-                const currentTheme = localStorage.getItem('theme') || 'light';
-                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-                localStorage.setItem('theme', newTheme);
-                applyTheme(newTheme);
-            });
-
-            // Apply saved theme on page load
-            const savedTheme = localStorage.getItem('theme') || 'light'; // Default to light
-            applyTheme(savedTheme);
         });
     </script>
 
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{% static 'invoices/serviceworker.js' %}", { scope: '/' })
+                    .then(registration => {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
+    </script>
+
     {% block scripts %}
-        <!-- PWA Service Worker Registration -->
-        <script>
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register("{% static 'invoices/serviceworker.js' %}")
-                        .then(registration => {
-                            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                        })
-                        .catch(error => {
-                            console.log('ServiceWorker registration failed: ', error);
-                        });
-                });
-            }
-        </script>
+        <!-- This block is now free for page-specific scripts -->
     {% endblock %}
 </body>
 </html>
