@@ -13,28 +13,20 @@ load_dotenv(BASE_DIR / '.env')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 if not SECRET_KEY:
-    # In a real production environment, this should raise an error.
     print("WARNING: SECRET_KEY environment variable not set. Using a temporary, insecure key for build purposes.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# We read a 'DEBUG' environment variable, defaulting to 'False' in production.
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = []
-
-# Railway provides the public domain in the RAILWAY_PUBLIC_DOMAIN variable.
 RAILWAY_PUBLIC_DOMAIN = os.getenv('RAILWAY_PUBLIC_DOMAIN')
 if RAILWAY_PUBLIC_DOMAIN:
     ALLOWED_HOSTS.append(RAILWAY_PUBLIC_DOMAIN)
-    # Also add the generic Railway domain for robustness.
-    # The leading dot is a wildcard for subdomains.
     ALLOWED_HOSTS.append('.up.railway.app')
 
-# Also allow localhost for local development
 if DEBUG:
     ALLOWED_HOSTS.append('127.0.0.1')
 
-# For security, Django checks the Origin header on POST requests.
 CSRF_TRUSTED_ORIGINS = []
 if RAILWAY_PUBLIC_DOMAIN:
     CSRF_TRUSTED_ORIGINS.append(f'https://{RAILWAY_PUBLIC_DOMAIN}')
@@ -47,14 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites', #Required for building absolute URLS for PayFast
+    'django.contrib.sites',
     'invoices',
     'payfast',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # WhiteNoise should be right after SecurityMiddleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,17 +55,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Tell Django to trust the 'X-Forwarded-Proto' header from our proxy
-# This ensures that request.is_secure() returns True for https requests.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-
 ROOT_URLCONF = 'lekkerbill.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # You can create this folder if needed
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -89,18 +77,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'lekkerbill.wsgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
 if 'DATABASE_URL' in os.environ:
-    # We are in production on Railway, use the provided database URL
     DATABASES = {
-        'default': dj_database_url.config(
-            conn_max_age=600,
-            conn_health_checks=True, # Recommended for production
-        )
+        'default': dj_database_url.config(conn_max_age=600, conn_health_checks=True)
     }
 else:
-    # We are in local development, use SQLite
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -110,36 +91,26 @@ else:
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Africa/Johannesburg'
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
 
 # --- Static files (CSS, JavaScript, Images) ---
 STATIC_URL = '/static/'
 
-# ✅ CORRECTED: This list should be empty.
-# Django's 'APP_DIRS': True setting in TEMPLATES automatically finds the 'static'
-# directory inside each app (like 'invoices/static/'). Defining it here as well
-# causes Django to find the same files twice, leading to the warnings you saw.
+# ✅ NEW, UNAMBIGUOUS CONFIGURATION:
+# We now tell Django to look in the single, top-level 'static' directory.
+# This is the most reliable way to manage project-wide static files.
 STATICFILES_DIRS = [
-    # BASE_DIR / "invoices" / "static", # This line is now correctly removed/commented out.
+    BASE_DIR / "static",
 ]
 
 # This is the directory where `collectstatic` will copy all static files for production.
@@ -148,28 +119,20 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # Use WhiteNoise's storage backend for efficient caching and gzipping.
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-
 # --- Media files (User-uploaded content like logos) ---
 # ❗️ IMPORTANT: This configuration is for LOCAL DEVELOPMENT ONLY.
 # In production on Railway, the filesystem is "ephemeral," meaning any uploaded
 # files will be DELETED every time you deploy or restart the app.
-#
 # The professional solution is to use a cloud storage service like Amazon S3.
-# You would install a package like `django-storages` and configure it here
-# to save and serve media files from a persistent S3 bucket.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
-
 
 # --- Auth settings ---
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
 
-# Required by django.contrib.sites to know which site's domain to use
 SITE_ID = 1
-
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- Custom App Settings ---
@@ -180,38 +143,16 @@ PRO_PLAN_PRICE = Decimal('79.00')
 PAYFAST_MERCHANT_ID = os.getenv('PAYFAST_MERCHANT_ID')
 PAYFAST_MERCHANT_KEY = os.getenv('PAYFAST_MERCHANT_KEY')
 PAYFAST_PASSPHRASE = os.getenv('PAYFAST_PASSPHRASE')
-
-# Use environment variable for testing flag.
-# It's safer to default to DEBUG status. If DEBUG is True, use sandbox.
 PAYFAST_TESTING = os.getenv('PAYFAST_TESTING', str(DEBUG)) == 'True'
 
-# Add a check to ensure production credentials are set when not in DEBUG mode
 if not DEBUG and not all([PAYFAST_MERCHANT_ID, PAYFAST_MERCHANT_KEY]):
     raise ValueError("In production, PAYFAST_MERCHANT_ID and PAYFAST_MERCHANT_KEY must be set.")
 
-# This setting is not actively used but is kept for clarity.
-# The actual URLs are built dynamically in the views.
-if RAILWAY_PUBLIC_DOMAIN:
-    PAYFAST_URL_BASE = f'https://{RAILWAY_PUBLIC_DOMAIN}'
-else:
-    PAYFAST_URL_BASE = 'http://127.0.0.1:8000'
-
-# --- Email Configuration (for development) ---
-# This will print emails to the console instead of sending them.
-# For production, you'll need to configure a real email service like SendGrid or Mailgun.
+# --- Email & Logging ---
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# --- Logging Configuration ---
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': 'INFO',  # This tells Django to show INFO level messages
-    },
+    'handlers': {'console': {'class': 'logging.StreamHandler'}},
+    'root': {'handlers': ['console'], 'level': 'INFO'},
 }
