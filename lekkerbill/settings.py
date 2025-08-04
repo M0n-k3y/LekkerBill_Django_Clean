@@ -54,7 +54,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # WhiteNoise should be right after SecurityMiddleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,7 +63,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Tell Django to trust the 'X-Forwarded-Proto' header from our ngrok proxy
+# Tell Django to trust the 'X-Forwarded-Proto' header from our proxy
 # This ensures that request.is_secure() returns True for https requests.
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
@@ -126,30 +126,42 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Africa/Johannesburg'  # Adjust if needed
+TIME_ZONE = 'Africa/Johannesburg'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
+# --- Static files (CSS, JavaScript, Images) ---
 STATIC_URL = '/static/'
 
-# During development, this is where you place static files
+# ✅ CORRECTED: This list should be empty.
+# Django's 'APP_DIRS': True setting in TEMPLATES automatically finds the 'static'
+# directory inside each app (like 'invoices/static/'). Defining it here as well
+# causes Django to find the same files twice, leading to the warnings you saw.
 STATICFILES_DIRS = [
-    BASE_DIR /"invoices" / "static",  # e.g. global static assets
+    # BASE_DIR / "invoices" / "static", # This line is now correctly removed/commented out.
 ]
 
-# When running collectstatic, files will be copied here
+# This is the directory where `collectstatic` will copy all static files for production.
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Add this line to use WhiteNoise's storage backend
+# Use WhiteNoise's storage backend for efficient caching and gzipping.
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files (User-uploaded content like logos)
+
+# --- Media files (User-uploaded content like logos) ---
+# ❗️ IMPORTANT: This configuration is for LOCAL DEVELOPMENT ONLY.
+# In production on Railway, the filesystem is "ephemeral," meaning any uploaded
+# files will be DELETED every time you deploy or restart the app.
+#
+# The professional solution is to use a cloud storage service like Amazon S3.
+# You would install a package like `django-storages` and configure it here
+# to save and serve media files from a persistent S3 bucket.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Auth settings
+
+# --- Auth settings ---
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
@@ -163,8 +175,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # --- Custom App Settings ---
 FREE_PLAN_ITEM_LIMIT = 5
 PRO_PLAN_PRICE = Decimal('79.00')
-
-# F:/Python Apps/LekkerBill_Django_Clean/lekkerbill/settings.py
 
 # --- PayFast Configuration ---
 PAYFAST_MERCHANT_ID = os.getenv('PAYFAST_MERCHANT_ID')
@@ -191,6 +201,7 @@ else:
 # For production, you'll need to configure a real email service like SendGrid or Mailgun.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# --- Logging Configuration ---
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
