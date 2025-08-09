@@ -1,3 +1,4 @@
+# Settings.py
 import os
 from pathlib import Path
 from decimal import Decimal
