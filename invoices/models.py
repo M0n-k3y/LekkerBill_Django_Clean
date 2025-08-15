@@ -1,5 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.urls import reverse
+from django.utils import timezone
+from decimal import Decimal
+
 
 class Customer(models.Model):
     """Represents a customer associated with a user."""
@@ -15,3 +21,158 @@ class Customer(models.Model):
 
     def __str__(self):
         return self.name
+
+class Profile(models.Model):
+    """Holds all user-specific settings and company details."""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    company_name = models.CharField(max_length=255, blank=True, null=True)
+    logo = models.ImageField(upload_to='logos/', blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    zip_code = models.CharField(max_length=20, blank=True, null=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    vat_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    bank_name = models.CharField(max_length=100, blank=True, null=True)
+    account_holder_name = models.CharField(max_length=255, blank=True, null=True)
+    bank_account_number = models.CharField(max_length=50, blank=True, null=True)
+    bank_branch_code = models.CharField(max_length=20, blank=True, null=True)
+    bank_account_type = models.CharField(max_length=50, blank=True, null=True)
+    invoice_prefix = models.CharField(max_length=10, default='INV-')
+    invoice_next_number = models.IntegerField(default=1)
+    quote_prefix = models.CharField(max_length=10, default='QTE-')
+    quote_next_number = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f'{self.user.username} Profile'
+
+
+class Subscription(models.Model):
+    PLAN_CHOICES = (('free', 'Free'), ('pro', 'Pro'))
+    STATUS_CHOICES = (('active', 'Active'), ('cancelled', 'Cancelled'), ('expired', 'Expired'))
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='subscription')
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default='free')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    payfast_token = models.CharField(max_length=255, blank=True, null=True)
+    subscription_start_date = models.DateField(default=timezone.now)
+    subscription_end_date = models.DateField(blank=True, null=True)
+
+    @property
+    def is_currently_active(self):
+        if self.plan == 'pro' and self.status == 'active' and self.subscription_end_date and self.subscription_end_date >= timezone.now().date():
+            return True
+        return False
+
+    def __str__(self):
+        return f"{self.user.username}'s {self.get_plan_display()} Subscription"
+
+
+class InventoryItem(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inventory_items')
+    name = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return self.name
+
+
+class Quote(models.Model):
+    STATUS_CHOICES = (('draft', 'Draft'), ('sent', 'Sent'), ('accepted', 'Accepted'), ('rejected', 'Rejected'))
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quotes')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='quotes')
+    quote_number = models.CharField(max_length=50, blank=True, null=True)
+    quote_date = models.DateField(default=timezone.now)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    invoice = models.OneToOneField('Invoice', on_delete=models.SET_NULL, blank=True, null=True, related_name='converted_from_quote')
+
+    @property
+    def total(self):
+        return self.subtotal + self.tax_amount
+
+    @property
+    def subtotal(self):
+        return sum(item.total for item in self.items.all())
+
+    @property
+    def tax_amount(self):
+        return self.subtotal * (self.tax_rate / Decimal(100))
+
+    def get_absolute_url(self):
+        # This requires a 'quote_detail' URL name, which we can add later.
+        # For now, it prevents errors if called.
+        return reverse('placeholder_view')
+
+    def __str__(self):
+        return f"Quote {self.quote_number or self.id} for {self.customer.name}"
+
+
+class QuoteItem(models.Model):
+    quote = models.ForeignKey(Quote, related_name='items', on_delete=models.CASCADE)
+    description = models.CharField(max_length=255)
+    long_description = models.TextField(blank=True, null=True)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def total(self):
+        return self.quantity * self.unit_price
+
+    def __str__(self):
+        return self.description
+
+
+class Invoice(models.Model):
+    STATUS_CHOICES = (('proforma', 'Proforma'), ('unpaid', 'Unpaid'), ('paid', 'Paid'))
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invoices')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='invoices')
+    invoice_number = models.CharField(max_length=50, blank=True, null=True)
+    invoice_date = models.DateField(default=timezone.now)
+    due_date = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unpaid')
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+
+    @property
+    def total(self):
+        return self.subtotal + self.tax_amount
+
+    @property
+    def subtotal(self):
+        return sum(item.total for item in self.items.all())
+
+    @property
+    def tax_amount(self):
+        return self.subtotal * (self.tax_rate / Decimal(100))
+
+    def get_absolute_url(self):
+        # This requires an 'invoice_detail' URL name.
+        return reverse('placeholder_view')
+
+    def __str__(self):
+        return f"Invoice {self.invoice_number or self.id} for {self.customer.name}"
+
+
+class InvoiceItem(models.Model):
+    invoice = models.ForeignKey(Invoice, related_name='items', on_delete=models.CASCADE)
+    description = models.CharField(max_length=255)
+    long_description = models.TextField(blank=True, null=True)
+    quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def total(self):
+        return self.quantity * self.unit_price
+
+    def __str__(self):
+        return self.description
+
+
+@receiver(post_save, sender=User)
+def create_user_related_models(sender, instance, created, **kwargs):
+    """Create Profile and Subscription for a new user."""
+    if created:
+        Profile.objects.create(user=instance)
+        Subscription.objects.create(user=instance)
