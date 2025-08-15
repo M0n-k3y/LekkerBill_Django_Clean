@@ -1,90 +1,60 @@
+# F:/Python Apps/LekkerBill_Django_Clean/invoices/urls.py
+
 from django.urls import path
-from . import views
 from django.contrib.auth import views as auth_views
+# You will need to import your own views for the dashboard, etc.
+from . import views
 
 urlpatterns = [
-    path('', views.landing_page, name='landing_page'),
-    path('dashboard/', views.dashboard, name='dashboard'),
-
-    # --- Auth URLs ---
-    path('signup/', views.signup, name='signup'),
+    path('', views.dashboard, name='dashboard'),
+    # --- Authentication URLs ---
+    # This is the URL that was causing the 404 error.
+    # It tells Django to use its built-in LoginView and your login.html template.
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
-    path('settings/', views.settings_update, name='settings_update'),
 
-    # --- Password Reset URLs ---
-    path(
-        'password_reset/',
-        auth_views.PasswordResetView.as_view(
-            template_name='registration/password_reset_form.html',
-            email_template_name='registration/password_reset_email.html',
-            subject_template_name='registration/password_reset_subject.txt'
-        ),
-        name='password_reset'
-    ),
-    path(
-        'password_reset/done/',
-        auth_views.PasswordResetDoneView.as_view(
-            template_name='registration/password_reset_done.html'
-        ),
-        name='password_reset_done'
-    ),
-    path(
-        'reset/<uidb64>/<token>/',
-        auth_views.PasswordResetConfirmView.as_view(
-            template_name='registration/password_reset_confirm.html'
-        ),
-        name='password_reset_confirm'
-    ),
-    path(
-        'reset/done/',
-        auth_views.PasswordResetCompleteView.as_view(
-            template_name='registration/password_reset_complete.html'
-        ),
-        name='password_reset_complete'
-    ),
+    # The logout URL. When a user logs out, they will be redirected to the login page.
+    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 
-    # --- Subscription URLs ---
-    path('subscription/', views.subscription_detail, name='subscription_detail'),
-    path('subscription/cancel/', views.cancel_subscription, name='cancel_subscription'),
-    path('subscription/reactivate/', views.reactivate_subscription, name='reactivate_subscription'),
+    # The signup URL, referenced in your login template.
+    # You will need to create a `signup` view in invoices/views.py for this to work.
+    path('signup/', views.signup, name='signup'),
 
-    # --- Subscription Payment URLs ---
-    path('subscription/upgrade/', views.upgrade_to_pro, name='upgrade_to_pro'),
-    path('payment/success/', views.payment_success, name='payment_success'),
-    path('payment/cancel/', views.payment_cancel, name='payment_cancel'),
+    # The password reset URLs, referenced in your login template.
+    # Django provides these views for you. You just need to create the corresponding templates.
+    path('password_reset/', auth_views.PasswordResetView.as_view(template_name='registration/password_reset_form.html'), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/password_reset_confirm.html'), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),
 
-    # --- Invoice URLs ---
-    path('invoices/', views.invoice_list, name='invoice_list'),
-    path('invoice/new/', views.invoice_create, name='invoice_create'),
-    path('invoice/<int:invoice_id>/', views.invoice_detail, name='invoice_detail'),
-    path('invoice/<int:invoice_id>/edit/', views.invoice_update, name='invoice_update'),
-    path('invoice/<int:invoice_id>/delete/', views.invoice_delete, name='invoice_delete'),
-    path('invoice/<int:invoice_id>/pdf/', views.invoice_pdf, name='invoice_pdf'),
-    path('invoice/public/<uuid:invoice_uuid>/pdf/', views.invoice_public_pdf, name='invoice_public_pdf'),
 
-    # --- Quote URLs ---
-    path('quotes/', views.quote_list, name='quote_list'),
-    path('quote/<int:quote_id>/', views.quote_detail, name='quote_detail'),
-    path('quote/new/', views.quote_create, name='quote_create'),
-    path('quote/<int:quote_id>/edit/', views.quote_update, name='quote_update'),
-    path('quote/<int:quote_id>/convert/', views.convert_quote_to_invoice, name='convert_quote_to_invoice'),
-    path('quote/<int:quote_id>/delete/', views.quote_delete, name='quote_delete'),
-    path('quote/<int:quote_id>/pdf/', views.quote_pdf, name='quote_pdf'),
+    # --- Add your other application URLs below this line ---
+    # The following URLs are required by your templates to avoid `NoReverseMatch` errors.
+    # They currently point to a placeholder view. You will replace `views.placeholder_view`
+    # with your actual views as you build out each feature.
 
-    # ✅ ADDED: Public Quote Acceptance URLs
-    path('quote/view/<uuid:quote_uuid>/', views.public_quote_detail, name='public_quote_detail'),
-    path('quote/view/<uuid:quote_uuid>/respond/', views.public_quote_respond, name='public_quote_respond'),
+    # Main application sections
+    path('invoices/', views.placeholder_view, name='invoice_list'), # Used in base.html
+    path('invoices/new/', views.placeholder_view, name='invoice_create'), # Used in invoice_list.html
 
-    # --- Customer URLs ---
-    path('customers/', views.customer_list, name='customer_list'),
-    path('customer/new/', views.customer_create, name='customer_create'),
-    path('customer/<int:customer_id>/edit/', views.customer_update, name='customer_update'),
-    path('customer/<int:customer_id>/delete/', views.customer_delete, name='customer_delete'),
+    path('quotes/', views.placeholder_view, name='quote_list'), # Used in base.html
+    path('quotes/new/', views.placeholder_view, name='quote_create'), # Used in quote_list.html
 
-    # --- Inventory URLs ---
-    path('inventory/', views.inventory_list, name='inventory_list'),
-    path('inventory/new/', views.inventory_create, name='inventory_create'),
-    path('inventory/<int:item_id>/edit/', views.inventory_update, name='inventory_update'),
-    path('inventory/<int:item_id>/delete/', views.inventory_delete, name='inventory_delete'),
+    # Customer URLs
+    path('customers/', views.placeholder_view, name='customer_list'), # Used in base.html
+    path('customers/new/', views.placeholder_view, name='customer_create'), # Used in customer_list.html
+    path('customers/<int:pk>/edit/', views.placeholder_view, name='customer_update'), # Used in customer_list.html
+    path('customers/<int:pk>/delete/', views.placeholder_view, name='customer_delete'), # Used in customer_list.html
+
+    # Inventory URLs
+    path('inventory/', views.placeholder_view, name='inventory_list'), # Used in base.html
+    path('inventory/new/', views.placeholder_view, name='inventory_create'), # Used in inventory_list.html
+    path('inventory/<int:pk>/edit/', views.placeholder_view, name='inventory_update'), # Used in inventory_list.html
+    path('inventory/<int:pk>/delete/', views.placeholder_view, name='inventory_delete'), # Used in inventory_list.html
+
+    # Settings & Subscription URLs
+    path('settings/', views.placeholder_view, name='settings_update'), # Used in base.html
+    path('subscription/', views.placeholder_view, name='subscription_detail'), # Used in base.html
+    path('subscription/cancel/', views.placeholder_view, name='cancel_subscription'), # Used in subscription_detail.html
+    path('subscription/reactivate/', views.placeholder_view, name='reactivate_subscription'), # Used in subscription_detail.html
+    path('subscription/upgrade/', views.placeholder_view, name='upgrade_to_pro'), # Used in subscription_detail.html
 ]
