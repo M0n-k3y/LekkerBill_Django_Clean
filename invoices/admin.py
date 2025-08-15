@@ -1,8 +1,8 @@
 from django.contrib import admin
 from .models import Customer, Invoice, InvoiceItem, Quote, QuoteItem, Profile, Subscription
 from django.utils import timezone
-from decimal import Decimal
-from django.urls import path
+from datetime import timedelta
+from django.urls import reverse
 from django.shortcuts import redirect
 from django.contrib import messages
 from django.utils.html import format_html
@@ -28,14 +28,11 @@ class InvoiceAdmin(admin.ModelAdmin):
     )
 
     def view_link(self, obj):
-        # Use reverse() for safer URL generation
-        from django.urls import reverse
         url = reverse('invoice_detail', args=[obj.id])
         return format_html('<a class="button" href="{}" target="_blank">View</a>', url)
     view_link.short_description = 'View Invoice'
 
     def pdf_link(self, obj):
-        from django.urls import reverse
         url = reverse('invoice_pdf', args=[obj.id])
         return format_html('<a class="button" href="{}" target="_blank">PDF</a>', url)
     pdf_link.short_description = 'Download PDF'
@@ -124,7 +121,6 @@ class QuoteAdmin(admin.ModelAdmin):
         return f"R{obj.total:.2f}"
 
     def view_link(self, obj):
-        from django.urls import reverse
         url = reverse('quote_detail', args=[obj.id])
         return format_html('<a class="button" href="{}" target="_blank">View</a>', url)
     view_link.short_description = 'View Quote'

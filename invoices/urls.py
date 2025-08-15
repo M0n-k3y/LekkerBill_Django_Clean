@@ -35,6 +35,11 @@ urlpatterns = [
     # Main application sections
     path('invoices/', views.placeholder_view, name='invoice_list'), # Used in base.html
     path('invoices/new/', views.placeholder_view, name='invoice_create'), # Used in invoice_list.html
+    # The following URLs are required by admin.py to prevent startup errors
+    path('invoices/<int:pk>/', views.placeholder_view, name='invoice_detail'),
+    path('invoices/<int:pk>/pdf/', views.placeholder_view, name='invoice_pdf'),
+    path('invoices/<int:pk>/update/', views.placeholder_view, name='invoice_update'),
+    path('invoices/<int:pk>/delete/', views.placeholder_view, name='invoice_delete'),
 
     path('quotes/', views.placeholder_view, name='quote_list'), # Used in base.html
     path('quotes/new/', views.placeholder_view, name='quote_create'), # Used in quote_list.html
@@ -44,6 +49,12 @@ urlpatterns = [
     path('customers/new/', views.customer_create, name='customer_create'),
     path('customers/<int:pk>/edit/', views.customer_update, name='customer_update'),
     path('customers/<int:pk>/delete/', views.customer_delete, name='customer_delete'),
+
+    # The following URLs are required by admin.py and templates
+    path('quotes/<int:pk>/', views.placeholder_view, name='quote_detail'),
+    path('quotes/<int:pk>/update/', views.placeholder_view, name='quote_update'),
+    path('quotes/<int:pk>/delete/', views.placeholder_view, name='quote_delete'),
+    path('quotes/<int:pk>/convert/', views.placeholder_view, name='convert_quote_to_invoice'),
 
     # Inventory URLs
     path('inventory/', views.placeholder_view, name='inventory_list'), # Used in base.html
