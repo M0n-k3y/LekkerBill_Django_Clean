@@ -1,18 +1,22 @@
-# E:/LekkerBill_Django_Clean/lekkerbill/urls.py
+# F:/Python Apps/LekkerBill_Django_Clean/lekkerbill/urls.py
 
 from django.contrib import admin
 from django.urls import path, include
-from django.contrib.auth import views as auth_views
+from django.views.generic.base import RedirectView
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    # This new line makes the login page the site's homepage
-    path('', auth_views.LoginView.as_view(template_name='registration/login.html'), name='home'),
+    # This redirects the root URL '/' to the '/login/' page. It's the best approach.
+    path('', RedirectView.as_view(url='/login/', permanent=True), name='home'),
 
     path('admin/', admin.site.urls),
 
-    # This includes all the URLs from your 'invoices' app (dashboard, etc.)
+    # It's good practice to include the URLs for all installed apps.
+    # The namespace allows you to use reverse('payfast:...') in your templates.
+    path('payfast/', include(('payfast.urls', 'payfast'), namespace='payfast')),
+
+    # This includes all the URLs from your 'invoices' app (dashboard, login, etc.)
     path('', include('invoices.urls')),
 ]
 
