@@ -40,10 +40,10 @@ urlpatterns = [
     path('quotes/new/', views.placeholder_view, name='quote_create'), # Used in quote_list.html
 
     # Customer URLs
-    path('customers/', views.placeholder_view, name='customer_list'), # Used in base.html
-    path('customers/new/', views.placeholder_view, name='customer_create'), # Used in customer_list.html
-    path('customers/<int:pk>/edit/', views.placeholder_view, name='customer_update'), # Used in customer_list.html
-    path('customers/<int:pk>/delete/', views.placeholder_view, name='customer_delete'), # Used in customer_list.html
+    path('customers/', views.customer_list, name='customer_list'),
+    path('customers/new/', views.customer_create, name='customer_create'),
+    path('customers/<int:pk>/edit/', views.customer_update, name='customer_update'),
+    path('customers/<int:pk>/delete/', views.customer_delete, name='customer_delete'),
 
     # Inventory URLs
     path('inventory/', views.placeholder_view, name='inventory_list'), # Used in base.html
