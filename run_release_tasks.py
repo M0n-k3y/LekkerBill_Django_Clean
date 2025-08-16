@@ -17,7 +17,7 @@ try:
 
     # Run the migrate command
     print("\n--- [STEP 4/7] Calling 'migrate' command...")
-    call_command('migrate')
+    call_command('migrate', '--noinput')
     print("✅ [SUCCESS] Database migrations completed.")
 
     # Run the createsu command
