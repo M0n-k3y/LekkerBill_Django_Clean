@@ -51,6 +51,31 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav">
+                    <!-- NOTIFICATIONS DROPDOWN -->
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link position-relative" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Notifications">
+                            <i class="bi bi-bell-fill"></i>
+                            {% if unread_notification_count > 0 %}
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                    {{ unread_notification_count }}
+                                    <span class="visually-hidden">unread notifications</span>
+                                </span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" style="min-width: 300px;">
+                            {% for notification in unread_notifications %}
+                                <li><a class="dropdown-item" href="{{ notification.link|default:'#' }}">{{ notification.message }}</a></li>
+                            {% empty %}
+                                <li><p class="dropdown-item text-muted text-center mb-0">No new notifications</p></li>
+                            {% endfor %}
+                            {% if unread_notification_count > 0 %}
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-center" href="{% url 'mark_notifications_as_read' %}">Mark all as read</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    {% endif %}
                     <!-- THEME TOGGLE BUTTON -->
                     <li class="nav-item">
                         <a href="#" class="nav-link" id="theme-toggler" title="Toggle theme">

@@ -187,3 +187,18 @@ def create_user_related_models(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
         Subscription.objects.create(user=instance)
+
+
+class Notification(models.Model):
+    """Represents a notification for a user."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    link = models.URLField(blank=True, null=True, help_text="A link to the relevant object (e.g., a quote).")
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Notification for {self.user.username}: {self.message[:30]}"

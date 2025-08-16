@@ -9,7 +9,7 @@ from django.utils import timezone
 from datetime import timedelta
 from weasyprint import HTML
 from .forms import SignUpForm, CustomerForm, InventoryItemForm, ProfileForm, InvoiceForm, QuoteForm, InvoiceItemForm, QuoteItemForm
-from .models import Customer, Quote, Invoice, Subscription, InventoryItem, Profile, InvoiceItem, QuoteItem
+from .models import Customer, Quote, Invoice, Subscription, InventoryItem, Profile, InvoiceItem, QuoteItem, Notification
 
 def signup(request):
     if request.method == 'POST':
@@ -276,9 +276,21 @@ def quote_customer_action(request, public_id):
         if action == 'accept' and quote.status in ['draft', 'sent']:
             quote.status = 'accepted'
             quote.save()
+            # Create a notification for the business owner
+            Notification.objects.create(
+                user=quote.user,
+                message=f"Quote #{quote.quote_number or quote.id} for {quote.customer.name} has been accepted.",
+                link=quote.get_absolute_url()
+            )
         elif action == 'reject' and quote.status in ['draft', 'sent']:
             quote.status = 'rejected'
             quote.save()
+            # Create a notification for the business owner
+            Notification.objects.create(
+                user=quote.user,
+                message=f"Quote #{quote.quote_number or quote.id} for {quote.customer.name} has been rejected.",
+                link=quote.get_absolute_url()
+            )
     return redirect('quote_public_view', public_id=quote.public_id)
 
 @login_required
@@ -309,6 +321,14 @@ def convert_quote_to_invoice(request, pk):
     quote.save()
     messages.success(request, f"Quote {quote.id} successfully converted to Invoice {new_invoice.id}.")
     return redirect('invoice_update', pk=new_invoice.pk)
+
+# --- Notifications ---
+
+@login_required
+def mark_notifications_as_read(request):
+    """Marks all unread notifications for the current user as read."""
+    request.user.notifications.filter(is_read=False).update(is_read=True)
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
 
 # --- Settings & Subscription ---
 

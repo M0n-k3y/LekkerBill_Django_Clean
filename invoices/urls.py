@@ -67,6 +67,9 @@ urlpatterns = [
     path('subscription/reactivate/', views.reactivate_subscription, name='reactivate_subscription'), # Used in subscription_detail.html
     path('subscription/upgrade/', views.upgrade_to_pro, name='upgrade_to_pro'), # Used in subscription_detail.html
 
+    # Notification URLs
+    path('notifications/mark-as-read/', views.mark_notifications_as_read, name='mark_notifications_as_read'),
+
     # PWA URL
     path('serviceworker.js', views.service_worker, name='serviceworker'),
 ]
