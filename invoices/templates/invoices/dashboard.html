@@ -18,52 +18,52 @@
 <div class="row">
     {#Card 1: Customers #}
     <div class="col-lg-3 col-md-6 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center d-flex flex-column">
                 <h5 class="card-title">Total Customers</h5>
                 <p class="card-text fs-1 fw-bold">{{ customer_count }}</p>
-                <div class="btn-group" role="group">
-                    <a href="{% url 'customer_list' %}" class="btn btn-primary">View</a>
-                    <a href="{% url 'customer_create' %}" class="btn btn-outline-primary">New</a>
+                <div class="mt-auto d-flex gap-2">
+                    <a href="{% url 'customer_list' %}" class="btn btn-primary flex-fill">View Customers</a>
+                    <a href="{% url 'customer_create' %}" class="btn btn-outline-primary flex-fill">New Customer</a>
                 </div>
             </div>
         </div>
     </div>
     {#Card 2: Quotes #}
     <div class="col-lg-3 col-md-6 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center d-flex flex-column">
                 <h5 class="card-title">Total Quotes</h5>
                 <p class="card-text fs-1 fw-bold">{{ quote_count }}</p>
-                <div class="btn-group" role="group">
-                    <a href="{% url 'quote_list' %}" class="btn btn-primary">View</a>
-                    <a href="{% url 'quote_create' %}" class="btn btn-outline-primary">New</a>
+                <div class="mt-auto d-flex gap-2">
+                    <a href="{% url 'quote_list' %}" class="btn btn-primary flex-fill">View Quotes</a>
+                    <a href="{% url 'quote_create' %}" class="btn btn-outline-primary flex-fill">New Quote</a>
                 </div>
             </div>
         </div>
     </div>
     {#Card 3: Invoices #}
     <div class="col-lg-3 col-md-6 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center d-flex flex-column">
                 <h5 class="card-title">Total Invoices</h5>
                 <p class="card-text fs-1 fw-bold">{{ invoice_count }}</p>
-                <div class="btn-group" role="group">
-                    <a href="{% url 'invoice_list' %}" class="btn btn-primary">View</a>
-                    <a href="{% url 'invoice_create' %}" class="btn btn-outline-primary">New</a>
+                <div class="mt-auto d-flex gap-2">
+                    <a href="{% url 'invoice_list' %}" class="btn btn-primary flex-fill">View Invoices</a>
+                    <a href="{% url 'invoice_create' %}" class="btn btn-outline-primary flex-fill">New Invoice</a>
                 </div>
             </div>
         </div>
     </div>
     {#Card 4: Inventory #}
     <div class="col-lg-3 col-md-6 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-body text-center">
+        <div class="card shadow-sm h-100">
+            <div class="card-body text-center d-flex flex-column">
                 <h5 class="card-title">Inventory Items</h5>
                 <p class="card-text fs-1 fw-bold">{{ inventory_count }}</p>
-                <div class="btn-group" role="group">
-                    <a href="{% url 'inventory_list' %}" class="btn btn-primary">View</a>
-                    <a href="{% url 'inventory_create' %}" class="btn btn-outline-primary">New</a>
+                <div class="mt-auto d-flex gap-2">
+                    <a href="{% url 'inventory_list' %}" class="btn btn-primary flex-fill">View Inventory</a>
+                    <a href="{% url 'inventory_create' %}" class="btn btn-outline-primary flex-fill">New Item</a>
                 </div>
             </div>
         </div>
