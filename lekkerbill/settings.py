@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'invoices',
+    'storages', # For DigitalOcean Spaces
     'payfast',
 ]
 
@@ -122,8 +123,6 @@ STATICFILES_DIRS = [
 ]
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 # --- Auth & Site Settings ---
 LOGIN_URL = 'login'
@@ -140,6 +139,34 @@ PAYFAST_MERCHANT_ID = os.getenv('PAYFAST_MERCHANT_ID', '10000100')
 PAYFAST_MERCHANT_KEY = os.getenv('PAYFAST_MERCHANT_KEY', '46f0cd694581a')
 PAYFAST_PASSPHRASE = os.getenv('PAYFAST_PASSPHRASE')  # Can be None
 PAYFAST_TESTING = os.getenv('PAYFAST_TESTING', str(DEBUG)) == 'True'
+
+# --- DigitalOcean Spaces Configuration (for Media Files) ---
+if 'AWS_STORAGE_BUCKET_NAME' in os.environ:
+    # Production settings using DigitalOcean Spaces
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME')
+    AWS_S3_ENDPOINT_URL = f'https://{AWS_S3_REGION_NAME}.digitaloceanspaces.com'
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.{AWS_S3_REGION_NAME}.digitaloceanspaces.com'
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+        'ACL': 'public-read', # Make files public by default
+    }
+    AWS_LOCATION = 'media' # Creates a 'media' folder in your space
+
+    # This is the URL that will be used for media files
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_LOCATION}/'
+
+    # Use the S3Boto3Storage backend for default file storage.
+    STORAGES = {
+        "default": {"BACKEND": "storages.backends.s3boto3.S3Boto3Storage"},
+        "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+    }
+else:
+    # Local development settings
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
 
 # --- Logging ---
 LOGGING = {

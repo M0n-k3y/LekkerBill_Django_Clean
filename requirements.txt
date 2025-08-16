@@ -8,3 +8,5 @@ dj-database-url
 psycopg2-binary
 django-payfast
 whitenoise
+boto3
+django-storages
