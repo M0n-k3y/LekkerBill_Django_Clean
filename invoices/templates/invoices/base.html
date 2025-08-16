@@ -43,6 +43,21 @@
             border-color: #63a896;
             color: #000;
         }
+
+        /*
+          On the profile page, make the theme-switcher buttons visible in dark mode
+          using a custom accent color for better contrast and a unique look.
+        */
+        [data-bs-theme="dark"] .btn[data-theme] {
+            color: #ef969c;
+            border-color: #ef969c;
+        }
+        [data-bs-theme="dark"] .btn[data-theme]:hover,
+        [data-bs-theme="dark"] .btn[data-theme]:focus {
+            color: #000; /* Black text for contrast on the pink background */
+            background-color: #ef969c;
+            border-color: #ef969c;
+        }
     </style>
 
     {% block head_extra %}
