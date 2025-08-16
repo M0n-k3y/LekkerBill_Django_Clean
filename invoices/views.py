@@ -60,6 +60,15 @@ def customer_list(request):
 
 @login_required
 def customer_create(request):
+    # --- START: Free Plan Limit Check ---
+    subscription = request.user.subscription
+    if subscription.plan == 'free':
+        customer_count = Customer.objects.filter(user=request.user).count()
+        if customer_count >= settings.FREE_PLAN_ITEM_LIMIT:
+            messages.warning(request, "You have reached the customer limit for the Free Plan. Please upgrade to Pro to create more.")
+            return redirect('subscription_detail')
+    # --- END: Free Plan Limit Check ---
+
     if request.method == 'POST':
         form = CustomerForm(request.POST)
         if form.is_valid():
@@ -159,6 +168,15 @@ def invoice_detail(request, pk):
 
 @login_required
 def invoice_create(request):
+    # --- START: Free Plan Limit Check ---
+    subscription = request.user.subscription
+    if subscription.plan == 'free':
+        invoice_count = Invoice.objects.filter(user=request.user).count()
+        if invoice_count >= settings.FREE_PLAN_ITEM_LIMIT:
+            messages.warning(request, "You have reached the invoice limit for the Free Plan. Please upgrade to Pro to create more.")
+            return redirect('subscription_detail')
+    # --- END: Free Plan Limit Check ---
+
     first_customer = Customer.objects.filter(user=request.user).first()
     if not first_customer:
         messages.warning(request, "You must create a customer before you can create an invoice.")
@@ -225,6 +243,15 @@ def quote_detail(request, pk):
 
 @login_required
 def quote_create(request):
+    # --- START: Free Plan Limit Check ---
+    subscription = request.user.subscription
+    if subscription.plan == 'free':
+        quote_count = Quote.objects.filter(user=request.user).count()
+        if quote_count >= settings.FREE_PLAN_ITEM_LIMIT:
+            messages.warning(request, "You have reached the quote limit for the Free Plan. Please upgrade to Pro to create more.")
+            return redirect('subscription_detail')
+    # --- END: Free Plan Limit Check ---
+
     first_customer = Customer.objects.filter(user=request.user).first()
     if not first_customer:
         messages.warning(request, "You must create a customer before you can create a quote.")
