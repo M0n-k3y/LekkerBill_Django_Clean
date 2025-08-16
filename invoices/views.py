@@ -117,6 +117,15 @@ def inventory_list(request):
 
 @login_required
 def inventory_create(request):
+    # --- START: Free Plan Limit Check ---
+    subscription = request.user.subscription
+    if subscription.plan == 'free':
+        inventory_count = InventoryItem.objects.filter(user=request.user).count()
+        if inventory_count >= settings.FREE_PLAN_ITEM_LIMIT:
+            messages.warning(request, "You have reached the inventory item limit for the Free Plan. Please upgrade to Pro to create more.")
+            return redirect('subscription_detail')
+    # --- END: Free Plan Limit Check ---
+
     if request.method == 'POST':
         form = InventoryItemForm(request.POST)
         if form.is_valid():
