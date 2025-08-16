@@ -1,4 +1,5 @@
 {% extends "invoices/base.html" %}
+{% load humanize %}
 
 {% block title %}Quote {{ quote.quote_number|default:quote.id }}{% endblock %}
 
@@ -50,8 +51,8 @@
                             {% if item.long_description %}<small class="d-block text-muted">{{ item.long_description }}</small>{% endif %}
                         </td>
                         <td class="text-end">{{ item.quantity }}</td>
-                        <td class="text-end">R{{ item.unit_price|floatformat:2 }}</td>
-                        <td class="text-end">R{{ item.total|floatformat:2 }}</td>
+                        <td class="text-end">R{{ item.unit_price|floatformat:2|intcomma }}</td>
+                        <td class="text-end">R{{ item.total|floatformat:2|intcomma }}</td>
                     </tr>
                     {% empty %}
                     <tr><td colspan="4" class="text-center text-muted">No items added to this quote yet.</td></tr>
@@ -62,9 +63,9 @@
         <div class="card-body d-flex justify-content-end">
              <div class="col-md-5 col-lg-4">
                 <ul class="list-group">
-                    <li class="list-group-item d-flex justify-content-between"><span>Subtotal:</span> <span>R{{ quote.subtotal|floatformat:2 }}</span></li>
-                    <li class="list-group-item d-flex justify-content-between"><span>Tax ({{ quote.tax_rate|floatformat:2 }}%):</span> <span>R{{ quote.tax_amount|floatformat:2 }}</span></li>
-                    <li class="list-group-item d-flex justify-content-between active"><strong>Total:</strong> <strong>R{{ quote.total|floatformat:2 }}</strong></li>
+                    <li class="list-group-item d-flex justify-content-between"><span>Subtotal:</span> <span>R{{ quote.subtotal|floatformat:2|intcomma }}</span></li>
+                    <li class="list-group-item d-flex justify-content-between"><span>Tax ({{ quote.tax_rate|floatformat:0 }}%):</span> <span>R{{ quote.tax_amount|floatformat:2|intcomma }}</span></li>
+                    <li class="list-group-item d-flex justify-content-between active"><strong>Total:</strong> <strong>R{{ quote.total|floatformat:2|intcomma }}</strong></li>
                 </ul>
             </div>
         </div>

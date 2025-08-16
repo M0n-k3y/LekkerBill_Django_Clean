@@ -1,4 +1,5 @@
 {% extends "invoices/base.html" %}
+{% load humanize %}
 
 {% block title %}All Invoices{% endblock %}
 
@@ -29,7 +30,7 @@
                         {% else %}
                             <span class="badge bg-info text-dark me-3">Proforma</span>
                         {% endif %}
-                        <span class="badge bg-secondary rounded-pill fs-6 me-3">R{{ invoice.total|floatformat:2 }}</span>
+                        <span class="badge bg-secondary rounded-pill fs-6 me-3">R{{ invoice.total|floatformat:2|intcomma }}</span>
                         <i class="bi bi-chevron-right text-muted"></i>
                     </div>
                 </a>

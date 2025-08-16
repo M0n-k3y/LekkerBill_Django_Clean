@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',   # Must be before staticfiles
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'django.contrib.humanize',
     'invoices',
     'storages', # For DigitalOcean Spaces
     'payfast',
