@@ -1,26 +1,52 @@
 from django import forms
+from .models import Customer, InventoryItem, Quote, Invoice, Profile, InvoiceItem, QuoteItem
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from .models import Customer
+
 
 class SignUpForm(UserCreationForm):
-    email = forms.EmailField(max_length=254, required=True, help_text='Required. Inform a valid email address.')
+    class Meta(UserCreationForm.Meta):
+        fields = UserCreationForm.Meta.fields + ('email',)
 
-    class Meta:
-        model = User
-        fields = ('username', 'email')
-
-    def __init__(self, *args, **kwargs):
-        super(SignUpForm, self).__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
 
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
         fields = ['name', 'email', 'phone', 'address']
+        widgets = {
+            'address': forms.Textarea(attrs={'rows': 3}),
+        }
 
-    def __init__(self, *args, **kwargs):
-        super(CustomerForm, self).__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
+
+class InventoryItemForm(forms.ModelForm):
+    class Meta:
+        model = InventoryItem
+        fields = ['name', 'description', 'unit_price']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
+
+
+class ProfileForm(forms.ModelForm):
+    """Form for user-specific settings."""
+    class Meta:
+        model = Profile
+        exclude = ['user'] # Let the view handle the user
+
+
+class InvoiceForm(forms.ModelForm):
+    class Meta:
+        model = Invoice
+        fields = ['customer', 'invoice_date', 'due_date', 'status', 'tax_rate']
+        widgets = {
+            'invoice_date': forms.DateInput(attrs={'type': 'date'}),
+            'due_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+
+class QuoteForm(forms.ModelForm):
+    class Meta:
+        model = Quote
+        fields = ['customer', 'quote_date', 'status', 'tax_rate']
+        widgets = {
+            'quote_date': forms.DateInput(attrs={'type': 'date'}),
+        }

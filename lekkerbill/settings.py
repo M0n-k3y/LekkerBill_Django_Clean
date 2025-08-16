@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'invoices',
-    # 'payfast',  # Uncomment when ready
+    'payfast',
 ]
 
 MIDDLEWARE = [

@@ -11,6 +11,9 @@ urlpatterns = [
     # to your 'invoices' app's urls.py file to be handled. This will
     # resolve the 404 error on your homepage.
     path('', include('invoices.urls')),
+
+    # URLs for the django-payfast library
+    path('payfast/', include('payfast.urls')),
 ]
 
 # This is a standard helper pattern for serving user-uploaded media files

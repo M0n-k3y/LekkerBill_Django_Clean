@@ -26,23 +26,23 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(template_name='registration/password_reset_confirm.html'), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='registration/password_reset_complete.html'), name='password_reset_complete'),
 
-
     # --- Add your other application URLs below this line ---
-    # The following URLs are required by your templates to avoid `NoReverseMatch` errors.
-    # They currently point to a placeholder view. You will replace `views.placeholder_view`
-    # with your actual views as you build out each feature.
 
     # Main application sections
-    path('invoices/', views.placeholder_view, name='invoice_list'), # Used in base.html
-    path('invoices/new/', views.placeholder_view, name='invoice_create'), # Used in invoice_list.html
-    # The following URLs are required by admin.py to prevent startup errors
-    path('invoices/<int:pk>/', views.placeholder_view, name='invoice_detail'),
-    path('invoices/<int:pk>/pdf/', views.placeholder_view, name='invoice_pdf'),
-    path('invoices/<int:pk>/update/', views.placeholder_view, name='invoice_update'),
-    path('invoices/<int:pk>/delete/', views.placeholder_view, name='invoice_delete'),
+    path('invoices/', views.invoice_list, name='invoice_list'),
+    path('invoices/new/', views.invoice_create, name='invoice_create'), # Used in invoice_list.html
+    path('invoices/<int:pk>/', views.invoice_detail, name='invoice_detail'),
+    path('invoices/<int:pk>/pdf/', views.invoice_pdf, name='invoice_pdf'),
+    path('invoices/<int:pk>/update/', views.invoice_update, name='invoice_update'),
+    path('invoices/<int:pk>/delete/', views.invoice_delete, name='invoice_delete'),
 
-    path('quotes/', views.placeholder_view, name='quote_list'), # Used in base.html
-    path('quotes/new/', views.placeholder_view, name='quote_create'), # Used in quote_list.html
+    path('quotes/', views.quote_list, name='quote_list'), # Used in base.html
+    path('quotes/new/', views.quote_create, name='quote_create'), # Used in quote_list.html
+    path('quotes/<int:pk>/', views.quote_detail, name='quote_detail'),
+    path('quotes/<int:pk>/pdf/', views.quote_pdf, name='quote_pdf'),
+    path('quotes/<int:pk>/update/', views.quote_update, name='quote_update'),
+    path('quotes/<int:pk>/delete/', views.quote_delete, name='quote_delete'),
+    path('quotes/<int:pk>/convert/', views.convert_quote_to_invoice, name='convert_quote_to_invoice'),
 
     # Customer URLs
     path('customers/', views.customer_list, name='customer_list'),
@@ -50,23 +50,19 @@ urlpatterns = [
     path('customers/<int:pk>/edit/', views.customer_update, name='customer_update'),
     path('customers/<int:pk>/delete/', views.customer_delete, name='customer_delete'),
 
-    # The following URLs are required by admin.py and templates
-    path('quotes/<int:pk>/', views.placeholder_view, name='quote_detail'),
-    path('quotes/<int:pk>/pdf/', views.placeholder_view, name='quote_pdf'),
-    path('quotes/<int:pk>/update/', views.placeholder_view, name='quote_update'),
-    path('quotes/<int:pk>/delete/', views.placeholder_view, name='quote_delete'),
-    path('quotes/<int:pk>/convert/', views.placeholder_view, name='convert_quote_to_invoice'),
-
     # Inventory URLs
     path('inventory/', views.inventory_list, name='inventory_list'), # Used in base.html
-    path('inventory/new/', views.placeholder_view, name='inventory_create'), # Used in inventory_list.html
-    path('inventory/<int:pk>/edit/', views.placeholder_view, name='inventory_update'), # Used in inventory_list.html
-    path('inventory/<int:pk>/delete/', views.placeholder_view, name='inventory_delete'), # Used in inventory_list.html
+    path('inventory/new/', views.inventory_create, name='inventory_create'), # Used in inventory_list.html
+    path('inventory/<int:pk>/edit/', views.inventory_update, name='inventory_update'), # Used in inventory_list.html
+    path('inventory/<int:pk>/delete/', views.inventory_delete, name='inventory_delete'), # Used in inventory_list.html
 
     # Settings & Subscription URLs
-    path('settings/', views.placeholder_view, name='settings_update'), # Used in base.html
-    path('subscription/', views.placeholder_view, name='subscription_detail'), # Used in base.html
-    path('subscription/cancel/', views.placeholder_view, name='cancel_subscription'), # Used in subscription_detail.html
-    path('subscription/reactivate/', views.placeholder_view, name='reactivate_subscription'), # Used in subscription_detail.html
-    path('subscription/upgrade/', views.placeholder_view, name='upgrade_to_pro'), # Used in subscription_detail.html
+    path('settings/', views.settings_update, name='settings_update'), # Used in base.html
+    path('subscription/', views.subscription_detail, name='subscription_detail'), # Used in base.html
+    path('subscription/cancel/', views.cancel_subscription, name='cancel_subscription'), # Used in subscription_detail.html
+    path('subscription/reactivate/', views.reactivate_subscription, name='reactivate_subscription'), # Used in subscription_detail.html
+    path('subscription/upgrade/', views.upgrade_to_pro, name='upgrade_to_pro'), # Used in subscription_detail.html
+
+    # PWA URL
+    path('serviceworker.js', views.service_worker, name='serviceworker'),
 ]
