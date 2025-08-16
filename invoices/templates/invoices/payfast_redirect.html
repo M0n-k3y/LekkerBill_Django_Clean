@@ -4,22 +4,23 @@
 
 {% block content %}
 <div class="text-center">
-    <h1 class="h4">{{ title }}</h1>
-    <p class="text-muted">You are being redirected to the secure PayFast payment gateway.</p>
-    <div class="spinner-border text-primary mt-3" role="status" style="width: 3rem; height: 3rem;">
+    <h1 class="h3 mb-3">{{ title }}</h1>
+    <p class="lead">Please wait while we securely redirect you to the PayFast payment gateway.</p>
+    <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
     </div>
-
-    <form action="{{ payfast_url }}" method="post" id="payfast-form" class="d-none">
-        {% csrf_token %}
+    <form action="{{ form.get_action }}" method="post" id="payfast-form" class="d-none">
         {{ form.as_p }}
-        <input type="submit" value="Click here if you are not redirected automatically." />
     </form>
 </div>
 {% endblock %}
 
 {% block scripts %}
+{{ block.super }}
 <script>
-    document.addEventListener('DOMContentLoaded', () => document.getElementById('payfast-form').submit());
+    // Auto-submit the form as soon as the page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('payfast-form').submit();
+    });
 </script>
 {% endblock %}

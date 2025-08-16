@@ -134,7 +134,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- Custom App & PayFast Settings ---
 FREE_PLAN_ITEM_LIMIT = 5
-PRO_PLAN_PRICE = Decimal('79.00')
+PRO_PLAN_PRICE = Decimal('69.00')
 
 PAYFAST_MERCHANT_ID = os.getenv('PAYFAST_MERCHANT_ID', '10000100')
 PAYFAST_MERCHANT_KEY = os.getenv('PAYFAST_MERCHANT_KEY', '46f0cd694581a')

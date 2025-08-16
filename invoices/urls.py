@@ -69,6 +69,11 @@ urlpatterns = [
     path('subscription/reactivate/', views.reactivate_subscription, name='reactivate_subscription'), # Used in subscription_detail.html
     path('subscription/upgrade/', views.upgrade_to_pro, name='upgrade_to_pro'), # Used in subscription_detail.html
 
+    # PayFast Integration URLs
+    path('payfast/notify/', views.payfast_notify, name='payfast_notify'),
+    path('payfast/return/', views.payfast_return, name='payfast_return'),
+    path('payfast/cancel/', views.payfast_cancel, name='payfast_cancel'),
+
     # Notification URLs
     path('notifications/mark-as-read/', views.mark_notifications_as_read, name='mark_notifications_as_read'),
 

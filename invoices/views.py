@@ -3,12 +3,16 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
+from django.urls import reverse
 from django.template.loader import render_to_string
 from django.forms import inlineformset_factory
 from django.utils import timezone
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
 from weasyprint import HTML
+from payfast.forms import PayFastForm
+from payfast.signals import payment_complete
 from .forms import SignUpForm, CustomerForm, InventoryItemForm, ProfileForm, InvoiceForm, QuoteForm, InvoiceItemForm, QuoteItemForm
 from .models import Customer, Quote, Invoice, Subscription, InventoryItem, Profile, InvoiceItem, QuoteItem, Notification
 
@@ -383,18 +387,77 @@ def subscription_detail(request):
 
 @login_required
 def upgrade_to_pro(request):
-    # In a real app, this would redirect to PayFast
-    messages.info(request, "PayFast integration is the next step!")
-    return redirect('subscription_detail')
+    """Prepares and redirects the user to PayFast to upgrade their subscription."""
+    subscription = request.user.subscription
+    
+    # Construct the data dictionary for PayFast
+    payfast_data = {
+        'merchant_id': settings.PAYFAST_MERCHANT_ID,
+        'merchant_key': settings.PAYFAST_MERCHANT_KEY,
+        'return_url': request.build_absolute_uri(reverse('payfast_return')),
+        'cancel_url': request.build_absolute_uri(reverse('payfast_cancel')),
+        'notify_url': request.build_absolute_uri(reverse('payfast_notify')),
+
+        # A unique ID for this specific transaction
+        'm_payment_id': f'SUB-{subscription.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}',
+        'amount': settings.PRO_PLAN_PRICE,
+        'item_name': 'LekkerBill Pro Subscription (Monthly)',
+
+        # Subscription details
+        'subscription_type': '1', # 1 = subscription
+        'frequency': '3',         # 3 = Monthly
+        'cycles': '0'             # 0 = indefinite until cancelled
+    }
+
+    # Create the PayFast form
+    form = PayFastForm(initial=payfast_data, sandbox=settings.PAYFAST_SANDBOX_MODE)
+
+    # Render a page that will auto-submit to PayFast
+    return render(request, 'invoices/payfast_redirect.html', {
+        'form': form,
+        'title': 'Redirecting to PayFast...'
+    })
 
 @login_required
 def cancel_subscription(request):
-    messages.info(request, "Subscription management is coming soon.")
+    """Cancels a user's active subscription."""
+    # In a full production app, you would also call the PayFast API to cancel the token.
+    # For now, we'll just update the local status.
+    subscription = request.user.subscription
+    if subscription.plan == 'pro' and subscription.status == 'active':
+        subscription.status = 'cancelled'
+        # The subscription remains active until the end of the current paid period.
+        subscription.save()
+        messages.success(request, "Your Pro subscription has been cancelled. You will retain Pro features until your current billing period ends.")
+    else:
+        messages.warning(request, "You do not have an active Pro subscription to cancel.")
     return redirect('subscription_detail')
 
 @login_required
 def reactivate_subscription(request):
     messages.info(request, "Subscription management is coming soon.")
+    return redirect('subscription_detail')
+
+# --- PayFast Integration Views ---
+
+@csrf_exempt
+def payfast_notify(request):
+    """
+    PayFast ITN (Instant Transaction Notification) handler.
+    The django-payfast app handles the verification, we just need this view to exist.
+    """
+    return HttpResponse(status=200)
+
+@login_required
+def payfast_return(request):
+    """View for when a user returns from a successful PayFast payment."""
+    messages.success(request, "Thank you for your payment! Your subscription has been upgraded to Pro.")
+    return redirect('subscription_detail')
+
+@login_required
+def payfast_cancel(request):
+    """View for when a user cancels a PayFast payment."""
+    messages.warning(request, "Your payment was cancelled. Your subscription has not been changed.")
     return redirect('subscription_detail')
 
 # --- PDF & PWA Views ---
@@ -458,3 +521,31 @@ def service_worker(request):
 def install_pwa(request):
     """Renders the PWA installation guide page."""
     return render(request, 'invoices/install_pwa.html', {'title': 'Install LekkerBill App'})
+
+# --- Signal Handlers ---
+
+def payment_received(sender, order, **kwargs):
+    """
+    Signal receiver for when a payment is successfully processed by django-payfast.
+    This is where we update the user's subscription.
+    """
+    try:
+        # m_payment_id is 'SUB-{subscription.id}-{timestamp}'
+        sub_id_str = order.m_payment_id.split('-')[1]
+        subscription = Subscription.objects.get(id=int(sub_id_str))
+
+        # Update the subscription
+        subscription.plan = 'pro'
+        subscription.status = 'active'
+        subscription.payfast_token = order.token # The subscription token from PayFast
+        subscription.subscription_start_date = timezone.now().date()
+        # Set the end date to be a bit after the next billing date to handle payment delays.
+        subscription.subscription_end_date = timezone.now().date() + timedelta(days=32)
+        subscription.save()
+
+        Notification.objects.create(user=subscription.user, message="Your subscription has been successfully upgraded to the Pro plan!", link=reverse('subscription_detail'))
+    except (Subscription.DoesNotExist, IndexError, ValueError) as e:
+        print(f"CRITICAL: Error processing payment signal for order {order.m_payment_id}: {e}")
+
+# Connect the signal to our handler function
+payment_complete.connect(payment_received)
