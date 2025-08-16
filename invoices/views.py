@@ -148,7 +148,8 @@ def invoice_list(request):
 @login_required
 def invoice_detail(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk, user=request.user)
-    public_share_url = request.build_absolute_uri(invoice.get_absolute_url())
+    # Changed to use the new public PDF download URL
+    public_share_url = invoice.get_public_pdf_url(request)
     return render(request, 'invoices/invoice_detail.html', {'invoice': invoice, 'public_share_url': public_share_url})
 
 @login_required
@@ -396,6 +397,24 @@ def reactivate_subscription(request):
     return redirect('subscription_detail')
 
 # --- PDF & PWA Views ---
+
+def invoice_public_pdf(request, public_id):
+    """A public view for a customer to download their invoice PDF."""
+    invoice = get_object_or_404(Invoice, public_id=public_id)
+    # We need the profile and user of the person who CREATED the invoice
+    profile = invoice.user.profile
+    user = invoice.user
+    context = {
+        'invoice': invoice,
+        'profile': profile,
+        'user': user,
+    }
+    html_string = render_to_string('invoices/invoice_pdf.html', context)
+    html = HTML(string=html_string, base_url=request.build_absolute_uri())
+    pdf = html.write_pdf()
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="invoice-{invoice.invoice_number or invoice.id}.pdf"'
+    return response
 
 @login_required
 def invoice_pdf(request, pk):

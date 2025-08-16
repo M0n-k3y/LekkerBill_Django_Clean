@@ -35,6 +35,7 @@ urlpatterns = [
     path('invoices/<int:pk>/pdf/', views.invoice_pdf, name='invoice_pdf'),
     path('invoices/<int:pk>/update/', views.invoice_update, name='invoice_update'),
     path('invoices/<int:pk>/delete/', views.invoice_delete, name='invoice_delete'),
+    path('invoices/public-pdf/<uuid:public_id>/', views.invoice_public_pdf, name='invoice_public_pdf'),
 
     path('quotes/', views.quote_list, name='quote_list'), # Used in base.html
     path('quotes/new/', views.quote_create, name='quote_create'), # Used in quote_list.html

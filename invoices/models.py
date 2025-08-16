@@ -157,6 +157,7 @@ class Invoice(models.Model):
     due_date = models.DateField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unpaid')
     tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     @property
     def total(self):
@@ -173,6 +174,10 @@ class Invoice(models.Model):
     def get_absolute_url(self):
         """Returns the URL to access a particular invoice instance."""
         return reverse('invoice_detail', args=[str(self.id)])
+
+    def get_public_pdf_url(self, request):
+        """Returns the full public URL for the customer to download the PDF."""
+        return request.build_absolute_uri(reverse('invoice_public_pdf', args=[str(self.public_id)]))
 
     def __str__(self):
         return f"Invoice {self.invoice_number or self.id} for {self.customer.name}"
