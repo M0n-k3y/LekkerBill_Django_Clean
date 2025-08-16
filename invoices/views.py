@@ -10,9 +10,8 @@ from django.utils import timezone
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
-from weasyprint import HTML
-from payfast.forms import PayFastForm
-from payfast.signals import payment_complete
+from weasyprint import HTML # Removed unused signal import
+from payfast.forms import PayFastForm # This now correctly imports from your local app
 from .forms import SignUpForm, CustomerForm, InventoryItemForm, ProfileForm, InvoiceForm, QuoteForm, InvoiceItemForm, QuoteItemForm
 from .models import Customer, Quote, Invoice, Subscription, InventoryItem, Profile, InvoiceItem, QuoteItem, Notification
 
@@ -435,7 +434,7 @@ def upgrade_to_pro(request):
         'notify_url': request.build_absolute_uri(reverse('payfast_notify')),
 
         # A unique ID for this specific transaction
-        'm_payment_id': f'SUB-{subscription.id}-{timezone.now().strftime("%Y%m%d%H%M%S")}',
+        'm_payment_id': subscription.id, # Use the subscription ID directly, as expected by your handler
         'amount': settings.PRO_PLAN_PRICE,
         'item_name': 'LekkerBill Pro Subscription (Monthly)',
 
@@ -557,31 +556,3 @@ def service_worker(request):
 def install_pwa(request):
     """Renders the PWA installation guide page."""
     return render(request, 'invoices/install_pwa.html', {'title': 'Install LekkerBill App'})
-
-# --- Signal Handlers ---
-
-def payment_received(sender, order, **kwargs):
-    """
-    Signal receiver for when a payment is successfully processed by django-payfast.
-    This is where we update the user's subscription.
-    """
-    try:
-        # m_payment_id is 'SUB-{subscription.id}-{timestamp}'
-        sub_id_str = order.m_payment_id.split('-')[1]
-        subscription = Subscription.objects.get(id=int(sub_id_str))
-
-        # Update the subscription
-        subscription.plan = 'pro'
-        subscription.status = 'active'
-        subscription.payfast_token = order.token # The subscription token from PayFast
-        subscription.subscription_start_date = timezone.now().date()
-        # Set the end date to be a bit after the next billing date to handle payment delays.
-        subscription.subscription_end_date = timezone.now().date() + timedelta(days=32)
-        subscription.save()
-
-        Notification.objects.create(user=subscription.user, message="Your subscription has been successfully upgraded to the Pro plan!", link=reverse('subscription_detail'))
-    except (Subscription.DoesNotExist, IndexError, ValueError) as e:
-        print(f"CRITICAL: Error processing payment signal for order {order.m_payment_id}: {e}")
-
-# Connect the signal to our handler function
-payment_complete.connect(payment_received)

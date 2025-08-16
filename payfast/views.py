@@ -92,7 +92,7 @@ def notify_handler(request):
         # This handles both the FIRST payment and all SUBSEQUENT monthly renewals.
         subscription_id = itn_log.m_payment_id
         subscription = get_object_or_404(Subscription, pk=subscription_id)
-        itn_log.profile = subscription.profile # Link the log to the profile
+        itn_log.profile = subscription.user.profile # Link the log to the profile
 
         # Check if this is the first payment for this subscription
         if not subscription.payfast_token:
@@ -125,7 +125,7 @@ def notify_handler(request):
 
         try:
             subscription = Subscription.objects.get(payfast_token=subscription_token)
-            itn_log.profile = subscription.profile
+            itn_log.profile = subscription.user.profile
             subscription.status = 'cancelled'
             subscription.save()
             logger.info("Subscription %s (Token: %s) has been marked as cancelled.", subscription.id, subscription_token)

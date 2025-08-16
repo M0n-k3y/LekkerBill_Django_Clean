@@ -8,7 +8,7 @@ class PayFastForm(forms.Form):
     This is a clean, minimal implementation controlled entirely by our project.
     """
     def __init__(self, *args, **kwargs):
-        self.testing = kwargs.pop('testing', False)
+        self.testing = kwargs.pop('sandbox', False)
         super().__init__(*args, **kwargs)
 
         # Create a hidden field for each piece of data from the view

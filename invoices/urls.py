@@ -4,6 +4,7 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 # You will need to import your own views for the dashboard, etc.
 from . import views
+from payfast import views as payfast_views # Import views from your custom payfast app
 
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
@@ -70,7 +71,7 @@ urlpatterns = [
     path('subscription/upgrade/', views.upgrade_to_pro, name='upgrade_to_pro'), # Used in subscription_detail.html
 
     # PayFast Integration URLs
-    path('payfast/notify/', views.payfast_notify, name='payfast_notify'),
+    path('payfast/notify/', payfast_views.notify_handler, name='payfast_notify'),
     path('payfast/return/', views.payfast_return, name='payfast_return'),
     path('payfast/cancel/', views.payfast_cancel, name='payfast_cancel'),
 
