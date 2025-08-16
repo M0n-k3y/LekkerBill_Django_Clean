@@ -139,7 +139,7 @@ PRO_PLAN_PRICE = Decimal('69.00')
 PAYFAST_MERCHANT_ID = os.getenv('PAYFAST_MERCHANT_ID', '10000100')
 PAYFAST_MERCHANT_KEY = os.getenv('PAYFAST_MERCHANT_KEY', '46f0cd694581a')
 PAYFAST_PASSPHRASE = os.getenv('PAYFAST_PASSPHRASE')  # Can be None
-PAYFAST_TESTING = os.getenv('PAYFAST_TESTING', str(DEBUG)) == 'True'
+PAYFAST_SANDBOX_MODE = os.getenv('PAYFAST_SANDBOX_MODE', str(DEBUG)) == 'True'
 
 # --- DigitalOcean Spaces Configuration (for Media Files) ---
 if 'AWS_STORAGE_BUCKET_NAME' in os.environ:
