@@ -1,2 +1,2 @@
 release: python run_release_tasks.py
-web: /bin/bash
+web: gunicorn lekkerbill.wsgi
