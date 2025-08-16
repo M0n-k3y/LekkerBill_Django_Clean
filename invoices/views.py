@@ -2,11 +2,11 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import SignUpForm, CustomerForm
-from .models import Customer
+from .forms import SignUpForm, CustomerForm # ✅ Keep your form imports
+from .models import Customer, Quote, Invoice, Subscription # ✅ Import the models we need
  
 # You would import your models here to get real data
-# from .models import Quote, Invoice, Subscription
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -20,18 +20,20 @@ def signup(request):
 
 @login_required
 def dashboard(request):
-    # This is placeholder data. You should replace this with real queries
-    # to your models once they are created.
+    # ✅ This now uses real data from your database.
+    # We use `select_related` to efficiently fetch the customer's name
+    # along with the invoice/quote, avoiding extra database queries.
     context = {
         'customer_count': Customer.objects.filter(user=request.user).count(),
-        'quote_count': 0,    # Quote.objects.filter(user=request.user).count()
-        'invoice_count': 0,  # Invoice.objects.filter(user=request.user).count()
-        'recent_invoices': [], # Invoice.objects.filter(user=request.user).order_by('-invoice_date')[:5]
-        'recent_quotes': [],   # Quote.objects.filter(user=request.user).order_by('-created_at')[:5]
-        'subscription': {      # A placeholder subscription object
-            'plan': 'free',
-            'is_currently_active': False
-        }
+        'quote_count': Quote.objects.filter(user=request.user).count(),
+        'invoice_count': Invoice.objects.filter(user=request.user).count(),
+        'recent_invoices': Invoice.objects.filter(user=request.user)
+                                        .select_related('customer')
+                                        .order_by('-invoice_date')[:5],
+        'recent_quotes': Quote.objects.filter(user=request.user)
+                                      .select_related('customer')
+                                      .order_by('-quote_date')[:5],
+        'subscription': request.user.subscription
     }
     return render(request, 'invoices/dashboard.html', context)
 
