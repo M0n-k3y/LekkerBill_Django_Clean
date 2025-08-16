@@ -489,14 +489,6 @@ def reactivate_subscription(request):
 
 # --- PayFast Integration Views ---
 
-@csrf_exempt
-def payfast_notify(request):
-    """
-    PayFast ITN (Instant Transaction Notification) handler.
-    The django-payfast app handles the verification, we just need this view to exist.
-    """
-    return HttpResponse(status=200)
-
 @login_required
 def payfast_return(request):
     """View for when a user returns from a successful PayFast payment."""
