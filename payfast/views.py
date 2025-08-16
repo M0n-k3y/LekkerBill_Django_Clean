@@ -23,7 +23,7 @@ def _validate_itn_with_payfast(raw_post_body_str: str) -> bool:
     Makes a server-to-server request back to PayFast to validate the ITN data.
     """
     validation_url = "https://sandbox.payfast.co.za/eng/query/validate"
-    if not settings.PAYFAST_TESTING:
+    if not settings.PAYFAST_SANDBOX_MODE:
         validation_url = "https://www.payfast.co.za/eng/query/validate"
 
     try:
