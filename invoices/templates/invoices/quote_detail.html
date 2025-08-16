@@ -93,7 +93,7 @@
             <span id="btnText"><i class="bi bi-download"></i> Download as PDF</span>
         </button>
 
-        {% if quote.is_converted %}
+        {% if quote.invoice %}
             <a href="{{ quote.invoice.get_absolute_url }}" class="btn btn-success">
                 <i class="bi bi-file-earmark-check-fill"></i> View Invoice {{ quote.invoice.invoice_number|default:quote.invoice.id }}
             </a>

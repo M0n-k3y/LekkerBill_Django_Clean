@@ -8,7 +8,7 @@ from django.forms import inlineformset_factory
 from django.utils import timezone
 from datetime import timedelta
 from weasyprint import HTML
-from .forms import SignUpForm, CustomerForm, InventoryItemForm, ProfileForm, InvoiceForm, QuoteForm
+from .forms import SignUpForm, CustomerForm, InventoryItemForm, ProfileForm, InvoiceForm, QuoteForm, InvoiceItemForm, QuoteItemForm
 from .models import Customer, Quote, Invoice, Subscription, InventoryItem, Profile, InvoiceItem, QuoteItem
 
 def signup(request):
@@ -163,7 +163,7 @@ def invoice_create(request):
 @login_required
 def invoice_update(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk, user=request.user)
-    InvoiceItemFormSet = inlineformset_factory(Invoice, InvoiceItem, fields=('description', 'long_description', 'quantity', 'unit_price'), extra=1, can_delete=True)
+    InvoiceItemFormSet = inlineformset_factory(Invoice, InvoiceItem, form=InvoiceItemForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
         form = InvoiceForm(request.POST, instance=invoice)
@@ -205,7 +205,9 @@ def quote_list(request):
 @login_required
 def quote_detail(request, pk):
     quote = get_object_or_404(Quote, pk=pk, user=request.user)
-    return render(request, 'invoices/quote_detail.html', {'quote': quote})
+    # Build the full public URL for sharing
+    public_share_url = request.build_absolute_uri(quote.get_absolute_url())
+    return render(request, 'invoices/quote_detail.html', {'quote': quote, 'public_share_url': public_share_url})
 
 @login_required
 def quote_create(request):
@@ -221,7 +223,7 @@ def quote_create(request):
 @login_required
 def quote_update(request, pk):
     quote = get_object_or_404(Quote, pk=pk, user=request.user)
-    QuoteItemFormSet = inlineformset_factory(Quote, QuoteItem, fields=('description', 'long_description', 'quantity', 'unit_price'), extra=1, can_delete=True)
+    QuoteItemFormSet = inlineformset_factory(Quote, QuoteItem, form=QuoteItemForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
         form = QuoteForm(request.POST, instance=quote)

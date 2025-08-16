@@ -82,3 +82,33 @@ class QuoteForm(forms.ModelForm):
             field.widget.attrs.update({'class': 'form-control'})
         # Add ID for Tom-select JavaScript
         self.fields['customer'].widget.attrs.update({'id': 'customer-select'})
+
+
+class InvoiceItemForm(forms.ModelForm):
+    """A form for a single invoice line item, with Bootstrap styling."""
+    class Meta:
+        model = InvoiceItem
+        fields = ['description', 'long_description', 'quantity', 'unit_price']
+        widgets = {
+            'long_description': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Optional: Add more details here...'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
+
+class QuoteItemForm(forms.ModelForm):
+    """A form for a single quote line item, with Bootstrap styling."""
+    class Meta:
+        model = QuoteItem
+        fields = ['description', 'long_description', 'quantity', 'unit_price']
+        widgets = {
+            'long_description': forms.Textarea(attrs={'rows': 2, 'placeholder': 'Optional: Add more details here...'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
