@@ -6,6 +6,7 @@ from django.http import HttpResponse
 from django.template.loader import render_to_string
 from django.forms import inlineformset_factory
 from django.utils import timezone
+from django.conf import settings
 from datetime import timedelta
 from weasyprint import HTML
 from .forms import SignUpForm, CustomerForm, InventoryItemForm, ProfileForm, InvoiceForm, QuoteForm, InvoiceItemForm, QuoteItemForm
@@ -24,6 +25,10 @@ def signup(request):
 
 @login_required
 def dashboard(request):
+    # Ensure subscription exists, creating it if necessary.
+    # This is a robust way to handle users created before the subscription model was added.
+    subscription, created = Subscription.objects.get_or_create(user=request.user)
+
     # ✅ This now uses real data from your database.
     # We use `select_related` to efficiently fetch the customer's name
     # along with the invoice/quote, avoiding extra database queries.
@@ -37,7 +42,7 @@ def dashboard(request):
         'recent_quotes': Quote.objects.filter(user=request.user)
                                       .select_related('customer')
                                       .order_by('-quote_date')[:5],
-        'subscription': request.user.subscription
+        'subscription': subscription
     }
     return render(request, 'invoices/dashboard.html', context)
 
@@ -352,7 +357,9 @@ def settings_update(request):
 
 @login_required
 def subscription_detail(request):
-    subscription = request.user.subscription
+    # Ensure subscription exists, creating it if necessary.
+    subscription, created = Subscription.objects.get_or_create(user=request.user)
+
     # This context is needed for the template's logic
     context = {
         'subscription': subscription,
@@ -360,6 +367,9 @@ def subscription_detail(request):
         'invoice_count': Invoice.objects.filter(user=request.user).count(),
         'quote_count': Quote.objects.filter(user=request.user).count(),
         'customer_count': Customer.objects.filter(user=request.user).count(),
+        # Pass settings constants to the template
+        'settings': {'FREE_PLAN_ITEM_LIMIT': settings.FREE_PLAN_ITEM_LIMIT},
+        'pro_plan_price': settings.PRO_PLAN_PRICE,
     }
     return render(request, 'invoices/subscription_detail.html', context)
 
