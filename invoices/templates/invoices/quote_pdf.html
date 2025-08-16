@@ -5,9 +5,9 @@
 {% block content %}
     <div class="header">
         <div class="company-logo">
-            {#CHANGED: Use .url instead of .path #}
+            {# ✅ CHANGED: Use .path for local file access by weasyprint #}
             {% if profile.logo %}
-                <img src="{{ profile.logo.url }}" alt="Company Logo">
+                <img src="{{ profile.logo.path }}" alt="Company Logo">
             {% endif %}
         </div>
         <div class="document-title">

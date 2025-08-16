@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+import uuid
 from django.utils import timezone
 from decimal import Decimal
 
@@ -92,6 +93,7 @@ class Quote(models.Model):
     quote_date = models.DateField(default=timezone.now)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
+    public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     invoice = models.OneToOneField('Invoice', on_delete=models.SET_NULL, blank=True, null=True, related_name='converted_from_quote')
 
     @property
@@ -109,6 +111,10 @@ class Quote(models.Model):
     def get_absolute_url(self):
         """Returns the URL to access a particular quote instance."""
         return reverse('quote_detail', args=[str(self.id)])
+
+    def get_public_url(self, request):
+        """Returns the full public URL for the customer to view."""
+        return request.build_absolute_uri(reverse('quote_public_view', args=[str(self.public_id)]))
 
     def __str__(self):
         return f"Quote {self.quote_number or self.id} for {self.customer.name}"

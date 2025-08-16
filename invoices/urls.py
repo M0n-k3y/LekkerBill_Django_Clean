@@ -42,6 +42,10 @@ urlpatterns = [
     path('quotes/<int:pk>/pdf/', views.quote_pdf, name='quote_pdf'),
     path('quotes/<int:pk>/update/', views.quote_update, name='quote_update'),
     path('quotes/<int:pk>/delete/', views.quote_delete, name='quote_delete'),
+
+    # Public-facing quote URLs for customers
+    path('quotes/view/<uuid:public_id>/', views.quote_public_view, name='quote_public_view'),
+    path('quotes/action/<uuid:public_id>/', views.quote_customer_action, name='quote_customer_action'),
     path('quotes/<int:pk>/convert/', views.convert_quote_to_invoice, name='convert_quote_to_invoice'),
 
     # Customer URLs

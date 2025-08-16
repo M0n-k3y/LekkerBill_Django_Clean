@@ -205,8 +205,8 @@ def quote_list(request):
 @login_required
 def quote_detail(request, pk):
     quote = get_object_or_404(Quote, pk=pk, user=request.user)
-    # Build the full public URL for sharing
-    public_share_url = request.build_absolute_uri(quote.get_absolute_url())
+    # Build the full public URL for sharing using the new method
+    public_share_url = quote.get_public_url(request)
     return render(request, 'invoices/quote_detail.html', {'quote': quote, 'public_share_url': public_share_url})
 
 @login_required
@@ -254,6 +254,32 @@ def quote_delete(request, pk):
         messages.success(request, "Quote has been deleted.")
         return redirect('quote_list')
     return render(request, 'invoices/quote_confirm_delete.html', {'quote': quote})
+
+
+def quote_public_view(request, public_id):
+    """A public view for a customer to see their quote."""
+    quote = get_object_or_404(Quote, public_id=public_id)
+    # We pass the profile of the user who CREATED the quote
+    profile = quote.user.profile
+    context = {
+        'quote': quote,
+        'profile': profile,
+    }
+    return render(request, 'invoices/quote_public.html', context)
+
+
+def quote_customer_action(request, public_id):
+    """Handles the customer accepting or rejecting the quote."""
+    quote = get_object_or_404(Quote, public_id=public_id)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'accept' and quote.status in ['draft', 'sent']:
+            quote.status = 'accepted'
+            quote.save()
+        elif action == 'reject' and quote.status in ['draft', 'sent']:
+            quote.status = 'rejected'
+            quote.save()
+    return redirect('quote_public_view', public_id=quote.public_id)
 
 @login_required
 def convert_quote_to_invoice(request, pk):
