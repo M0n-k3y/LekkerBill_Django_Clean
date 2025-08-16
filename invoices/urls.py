@@ -73,4 +73,5 @@ urlpatterns = [
 
     # PWA URL
     path('serviceworker.js', views.service_worker, name='serviceworker'),
+    path('install/', views.install_pwa, name='install_pwa'),
 ]

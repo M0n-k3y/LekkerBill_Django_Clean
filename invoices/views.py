@@ -434,3 +434,7 @@ def service_worker(request):
     Serves the service-worker.js file.
     """
     return render(request, 'serviceworker.js', content_type='application/javascript')
+
+def install_pwa(request):
+    """Renders the PWA installation guide page."""
+    return render(request, 'invoices/install_pwa.html', {'title': 'Install LekkerBill App'})
