@@ -101,9 +101,8 @@ class Quote(models.Model):
         return self.subtotal * (self.tax_rate / Decimal(100))
 
     def get_absolute_url(self):
-        # This requires a 'quote_detail' URL name, which we can add later.
-        # For now, it prevents errors if called.
-        return reverse('placeholder_view')
+        """Returns the URL to access a particular quote instance."""
+        return reverse('quote_detail', args=[str(self.id)])
 
     def __str__(self):
         return f"Quote {self.quote_number or self.id} for {self.customer.name}"
@@ -148,8 +147,8 @@ class Invoice(models.Model):
         return self.subtotal * (self.tax_rate / Decimal(100))
 
     def get_absolute_url(self):
-        # This requires an 'invoice_detail' URL name.
-        return reverse('placeholder_view')
+        """Returns the URL to access a particular invoice instance."""
+        return reverse('invoice_detail', args=[str(self.id)])
 
     def __str__(self):
         return f"Invoice {self.invoice_number or self.id} for {self.customer.name}"

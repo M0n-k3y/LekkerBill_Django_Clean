@@ -52,6 +52,7 @@ urlpatterns = [
 
     # The following URLs are required by admin.py and templates
     path('quotes/<int:pk>/', views.placeholder_view, name='quote_detail'),
+    path('quotes/<int:pk>/pdf/', views.placeholder_view, name='quote_pdf'),
     path('quotes/<int:pk>/update/', views.placeholder_view, name='quote_update'),
     path('quotes/<int:pk>/delete/', views.placeholder_view, name='quote_delete'),
     path('quotes/<int:pk>/convert/', views.placeholder_view, name='convert_quote_to_invoice'),

@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.sites',
     'invoices',
-    'payfast',
+   # 'payfast',
 ]
 
 # --- Middleware Configuration ---
