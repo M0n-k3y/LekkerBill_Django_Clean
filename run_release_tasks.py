@@ -4,31 +4,38 @@ import sys
 import django
 from django.core.management import call_command
 
-print("--- UNIFIED RELEASE TASK RUNNER INITIATED ---")
-print("Initializing Django...")
+# More verbose logging to pinpoint failures
+print("--- [STEP 1/7] Release task script started.")
 
 try:
     # Set up the Django environment
+    print("--- [STEP 2/7] Setting DJANGO_SETTINGS_MODULE environment variable.")
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lekkerbill.settings')
+    print("--- [STEP 3/7] Initializing Django with django.setup().")
     django.setup()
-    print("✅ Django initialized successfully.")
+    print("✅ [SUCCESS] Django initialized successfully.")
 
     # Run the migrate command
-    print("\n--> Running database migrations...")
+    print("\n--- [STEP 4/7] Calling 'migrate' command...")
     call_command('migrate')
-    print("✅ SUCCESS: Database migrations completed.")
+    print("✅ [SUCCESS] Database migrations completed.")
 
     # Run the createsu command
-    print("\n--> Checking for/creating superuser...")
+    print("\n--- [STEP 5/7] Calling 'createsu' command...")
     call_command('createsu')
-    print("✅ SUCCESS: Superuser check completed.")
+    print("✅ [SUCCESS] Superuser check completed.")
+
+    print("\n--- [STEP 6/7] All tasks finished without raising an exception.")
 
 except Exception as e:
-    print(f"\n❌ FATAL: An exception occurred during release tasks.")
-    print("--- TRACEBACK ---")
+    print(f"\n❌ [FATAL] An exception occurred during release tasks.")
+    print(f"--- [ERROR TYPE]: {type(e).__name__}")
+    print(f"--- [ERROR DETAILS]: {e}")
+    print("--- [TRACEBACK] ---")
     import traceback
     traceback.print_exc()
-    print("--- END TRACEBACK ---")
+    print("--- [END TRACEBACK] ---")
+    # Exit with a non-zero status code to signal failure to the platform
     sys.exit(1)
 
-print("\n--- ALL RELEASE TASKS COMPLETED SUCCESSFULLY ---")
+print("\n--- [STEP 7/7] Script finished. ALL RELEASE TASKS COMPLETED SUCCESSFULLY ---")
