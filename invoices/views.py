@@ -330,6 +330,11 @@ def mark_notifications_as_read(request):
     request.user.notifications.filter(is_read=False).update(is_read=True)
     return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
 
+@login_required
+def profile_view(request):
+    """Displays the user's profile hub page."""
+    return render(request, 'invoices/profile.html', {'title': 'My Profile'})
+
 # --- Settings & Subscription ---
 
 @login_required

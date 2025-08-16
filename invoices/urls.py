@@ -61,6 +61,7 @@ urlpatterns = [
     path('inventory/<int:pk>/delete/', views.inventory_delete, name='inventory_delete'), # Used in inventory_list.html
 
     # Settings & Subscription URLs
+    path('profile/', views.profile_view, name='profile'),
     path('settings/', views.settings_update, name='settings_update'), # Used in base.html
     path('subscription/', views.subscription_detail, name='subscription_detail'), # Used in base.html
     path('subscription/cancel/', views.cancel_subscription, name='cancel_subscription'), # Used in subscription_detail.html

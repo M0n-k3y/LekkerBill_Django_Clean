@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
+from django.db import transaction
 import uuid
 from django.utils import timezone
 from decimal import Decimal
@@ -38,10 +39,10 @@ class Profile(models.Model):
     bank_account_number = models.CharField(max_length=50, blank=True, null=True)
     bank_branch_code = models.CharField(max_length=20, blank=True, null=True)
     bank_account_type = models.CharField(max_length=50, blank=True, null=True)
-    invoice_prefix = models.CharField(max_length=10, default='INV-')
-    invoice_next_number = models.IntegerField(default=1)
-    quote_prefix = models.CharField(max_length=10, default='QTE-')
-    quote_next_number = models.IntegerField(default=1)
+    invoice_prefix = models.CharField(max_length=10, default='INV-', help_text="The prefix for your invoice numbers (e.g., INV-).")
+    invoice_next_number = models.IntegerField(default=1, help_text="The next number to be used for a new invoice.")
+    quote_prefix = models.CharField(max_length=10, default='QTE-', help_text="The prefix for your quote numbers (e.g., QTE-).")
+    quote_next_number = models.IntegerField(default=1, help_text="The next number to be used for a new quote.")
 
     def __str__(self):
         return f'{self.user.username} Profile'
@@ -119,6 +120,16 @@ class Quote(models.Model):
     def __str__(self):
         return f"Quote {self.quote_number or self.id} for {self.customer.name}"
 
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Object is being created for the first time
+            with transaction.atomic():
+                # Lock the user's profile row to prevent race conditions
+                profile = Profile.objects.select_for_update().get(user=self.user)
+                self.quote_number = f"{profile.quote_prefix}{profile.quote_next_number}"
+                profile.quote_next_number += 1
+                profile.save()
+        super().save(*args, **kwargs)
+
 
 class QuoteItem(models.Model):
     quote = models.ForeignKey(Quote, related_name='items', on_delete=models.CASCADE)
@@ -164,6 +175,16 @@ class Invoice(models.Model):
 
     def __str__(self):
         return f"Invoice {self.invoice_number or self.id} for {self.customer.name}"
+
+    def save(self, *args, **kwargs):
+        if not self.pk:  # Object is being created for the first time
+            with transaction.atomic():
+                # Lock the user's profile row to prevent race conditions
+                profile = Profile.objects.select_for_update().get(user=self.user)
+                self.invoice_number = f"{profile.invoice_prefix}{profile.invoice_next_number}"
+                profile.invoice_next_number += 1
+                profile.save()
+        super().save(*args, **kwargs)
 
 
 class InvoiceItem(models.Model):

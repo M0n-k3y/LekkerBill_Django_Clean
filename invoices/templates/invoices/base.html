@@ -34,23 +34,13 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 {% if user.is_authenticated %}
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'invoice_list' %}">Invoices</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'quote_list' %}">Quotes</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'customer_list' %}">Customers</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{% url 'inventory_list' %}">Inventory</a>
-                    </li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'customer_list' %}">Customers</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'quote_list' %}">Quotes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'invoice_list' %}">Invoices</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'inventory_list' %}">Inventory</a></li>
                 </ul>
-                <ul class="navbar-nav">
+                <ul class="navbar-nav align-items-lg-center">
                     <!-- NOTIFICATIONS DROPDOWN -->
                     {% if user.is_authenticated %}
                     <li class="nav-item dropdown">
@@ -76,27 +66,19 @@
                         </ul>
                     </li>
                     {% endif %}
-                    <!-- THEME TOGGLE BUTTON -->
+                    <!-- PROFILE & LOGOUT -->
                     <li class="nav-item">
-                        <a href="#" class="nav-link" id="theme-toggler" title="Toggle theme">
-                            <i class="bi" id="theme-icon"></i>
+                        <a class="nav-link" href="{% url 'profile' %}">
+                            <i class="bi-person-circle me-1"></i> Profile
                         </a>
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="bi-person-circle me-1"></i> {{ user.username }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{% url 'settings_update' %}">Settings</a></li>
-                            <li><a class="dropdown-item" href="{% url 'subscription_detail' %}">My Subscription</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <form action="{% url 'logout' %}" method="post" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="dropdown-item">Log Out</button>
-                                </form>
-                            </li>
-                        </ul>
+                    <li class="nav-item">
+                        <form action="{% url 'logout' %}" method="post" class="d-flex">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-link nav-link text-danger">
+                                <i class="bi-box-arrow-right me-1"></i> Log Out
+                            </button>
+                        </form>
                     </li>
                 </ul>
                 {% else %}
@@ -135,42 +117,38 @@
     <!-- THEME TOGGLE SCRIPT -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const themeToggler = document.getElementById('theme-toggler');
+            const lightTheme = document.getElementById('theme-light');
+            const darkTheme = document.getElementById('theme-dark');
+            const mainNavbar = document.getElementById('main-navbar');
 
-            if (themeToggler) {
-                const themeIcon = document.getElementById('theme-icon');
-                const lightTheme = document.getElementById('theme-light');
-                const darkTheme = document.getElementById('theme-dark');
-                const mainNavbar = document.getElementById('main-navbar');
-
-                function applyTheme(theme) {
-                    if (theme === 'dark') {
-                        document.documentElement.setAttribute('data-bs-theme', 'dark');
-                        lightTheme.disabled = true;
-                        darkTheme.disabled = false;
-                        themeIcon.className = 'bi bi-sun-fill';
-                        mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-dark';
-                    } else {
-                        document.documentElement.setAttribute('data-bs-theme', 'light');
-                        lightTheme.disabled = false;
-                        darkTheme.disabled = true;
-                        themeIcon.className = 'bi bi-moon-stars-fill';
-                        mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-primary';
-                    }
+            function applyTheme(theme) {
+                if (theme === 'dark') {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark');
+                    lightTheme.disabled = true;
+                    darkTheme.disabled = false;
+                    mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-dark';
+                } else {
+                    document.documentElement.setAttribute('data-bs-theme', 'light');
+                    lightTheme.disabled = false;
+                    darkTheme.disabled = true;
+                    mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-primary';
                 }
+            }
 
-                themeToggler.addEventListener('click', (e) => {
+            // Listen for clicks on any element with data-theme attribute
+            document.body.addEventListener('click', (e) => {
+                const themeSwitcher = e.target.closest('[data-theme]');
+                if (themeSwitcher) {
                     e.preventDefault();
-                    const currentTheme = localStorage.getItem('theme') || 'light';
-                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                    const newTheme = themeSwitcher.getAttribute('data-theme');
                     localStorage.setItem('theme', newTheme);
                     applyTheme(newTheme);
-                });
+                }
+            });
 
-                // Apply saved theme on page load
-                const savedTheme = localStorage.getItem('theme') || 'light'; // Default to light
-                applyTheme(savedTheme);
-            }
+            // Apply saved theme on page load
+            const savedTheme = localStorage.getItem('theme') || 'light'; // Default to light
+            applyTheme(savedTheme);
         });
     </script>
 

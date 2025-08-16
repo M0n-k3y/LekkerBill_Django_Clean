@@ -1,0 +1,43 @@
+{% extends "invoices/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h2 mb-0">{{ title }}</h1>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Account Management</h2>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'settings_update' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <span><i class="bi-gear-fill me-2"></i>Company & Invoice Settings</span>
+                    <i class="bi-chevron-right"></i>
+                </a>
+                <a href="{% url 'subscription_detail' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    <span><i class="bi-gem me-2"></i>My Subscription</span>
+                    <i class="bi-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h2 class="h5 mb-0">Appearance</h2>
+            </div>
+            <div class="card-body">
+                <p class="text-muted">Choose your preferred color scheme.</p>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-outline-primary" data-theme="light"><i class="bi-sun-fill me-2"></i> Light Mode</button>
+                    <button class="btn btn-outline-secondary" data-theme="dark"><i class="bi-moon-stars-fill me-2"></i> Dark Mode</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
