@@ -10,6 +10,8 @@ from django.utils import timezone
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
+import hashlib
+from urllib.parse import urlencode
 from weasyprint import HTML # Removed unused signal import
 from payfast.forms import PayFastForm # This now correctly imports from your local app
 from .forms import SignUpForm, CustomerForm, InventoryItemForm, ProfileForm, InvoiceForm, QuoteForm, InvoiceItemForm, QuoteItemForm
@@ -435,7 +437,7 @@ def upgrade_to_pro(request):
 
         # A unique ID for this specific transaction
         'm_payment_id': subscription.id, # Use the subscription ID directly, as expected by your handler
-        'amount': settings.PRO_PLAN_PRICE,
+        'amount': f"{settings.PRO_PLAN_PRICE:.2f}", # Explicitly format as a string with 2 decimal places
         'item_name': 'LekkerBill Pro Subscription (Monthly)',
 
         # Subscription details
@@ -443,6 +445,18 @@ def upgrade_to_pro(request):
         'frequency': '3',         # 3 = Monthly
         'cycles': '0'             # 0 = indefinite until cancelled
     }
+
+    # --- SIGNATURE GENERATION ---
+    # Create the URL-encoded string from the data dictionary.
+    payload_string = urlencode(payfast_data)
+
+    # Append the passphrase if it's set. It is NOT URL-encoded for the signature.
+    passphrase = settings.PAYFAST_PASSPHRASE
+    if passphrase:
+        payload_string += f"&passphrase={passphrase}"
+
+    # Generate the MD5 signature and add it to the data.
+    payfast_data['signature'] = hashlib.md5(payload_string.encode('utf-8')).hexdigest()
 
     # Create the PayFast form
     form = PayFastForm(initial=payfast_data, sandbox=settings.PAYFAST_SANDBOX_MODE)
