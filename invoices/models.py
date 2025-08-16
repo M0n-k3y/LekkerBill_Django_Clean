@@ -68,13 +68,19 @@ class Subscription(models.Model):
 
 
 class InventoryItem(models.Model):
+    """Represents a pre-defined product or service that can be quickly added to a quote or invoice."""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='inventory_items')
-    name = models.CharField(max_length=200)
-    description = models.TextField(blank=True, null=True)
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    name = models.CharField(max_length=255, help_text="The name of the product or service.")
+    description = models.TextField(blank=True, null=True, help_text="A description for internal reference.")
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "Inventory Item"
+        verbose_name_plural = "Inventory Items"
+        ordering = ['name']
 
 
 class Quote(models.Model):

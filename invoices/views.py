@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import SignUpForm, CustomerForm # ✅ Keep your form imports
-from .models import Customer, Quote, Invoice, Subscription # ✅ Import the models we need
+from .forms import SignUpForm, CustomerForm
+from .models import Customer, Quote, Invoice, Subscription, InventoryItem
  
 # You would import your models here to get real data
 
@@ -86,3 +86,14 @@ def customer_delete(request, pk):
         messages.success(request, f"Customer '{customer_name}' has been deleted.")
         return redirect('customer_list')
     return render(request, 'invoices/customer_confirm_delete.html', {'customer': customer})
+
+# --- Inventory CRUD Views ---
+
+@login_required
+def inventory_list(request):
+    inventory_items = InventoryItem.objects.filter(user=request.user)
+    context = {
+        'inventory_items': inventory_items,
+        'title': 'Inventory Items' # The template uses this title variable
+    }
+    return render(request, 'invoices/inventory_list.html', context)

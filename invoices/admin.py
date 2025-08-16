@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Customer, Invoice, InvoiceItem, Quote, QuoteItem, Profile, Subscription
+from .models import Customer, Invoice, InvoiceItem, Quote, QuoteItem, Profile, Subscription, InventoryItem
 from django.utils import timezone
 from datetime import timedelta
 from django.urls import reverse
@@ -134,6 +134,13 @@ class CustomerAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'phone', 'user')
     search_fields = ('name', 'email', 'user__username')
     list_filter = ('user',)
+
+@admin.register(InventoryItem)
+class InventoryItemAdmin(admin.ModelAdmin):
+    list_display = ('name', 'unit_price', 'user')
+    search_fields = ('name', 'description')
+    list_filter = ('user',)
+    ordering = ('name',)
 
 # -------------------
 # Register Models

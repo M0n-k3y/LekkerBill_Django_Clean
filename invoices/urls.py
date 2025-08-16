@@ -58,7 +58,7 @@ urlpatterns = [
     path('quotes/<int:pk>/convert/', views.placeholder_view, name='convert_quote_to_invoice'),
 
     # Inventory URLs
-    path('inventory/', views.placeholder_view, name='inventory_list'), # Used in base.html
+    path('inventory/', views.inventory_list, name='inventory_list'), # Used in base.html
     path('inventory/new/', views.placeholder_view, name='inventory_create'), # Used in inventory_list.html
     path('inventory/<int:pk>/edit/', views.placeholder_view, name='inventory_update'), # Used in inventory_list.html
     path('inventory/<int:pk>/delete/', views.placeholder_view, name='inventory_delete'), # Used in inventory_list.html
