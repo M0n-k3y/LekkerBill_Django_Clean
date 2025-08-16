@@ -21,7 +21,7 @@
                         <p class="mb-1 text-muted">{{ item.description|default:"No description." }}</p>
                     </div>
                     <div class="d-flex align-items-center">
-                        <span class="badge bg-secondary rounded-pill fs-6 me-3">R{{ item.unit_price|floatformat:2 }}</span>
+                        <span class="badge bg-secondary rounded-pill fs-6 me-3">R{{ item.unit_price|floatformat:2|intcomma }}</span>
                         <a href="{% url 'inventory_update' item.id %}" class="btn btn-sm btn-outline-secondary me-2" title="Edit"><i class="bi bi-pencil-square"></i></a>
                         <a href="{% url 'inventory_delete' item.id %}" class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></a>
                     </div>
