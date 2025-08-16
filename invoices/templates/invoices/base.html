@@ -58,6 +58,13 @@
             background-color: #ef969c;
             border-color: #ef969c;
         }
+
+        /*
+          Give cards in dark mode the same rounded corners as the light theme for consistency.
+        */
+        [data-bs-theme="dark"] .card {
+            border-radius: 0.5rem;
+        }
     </style>
 
     {% block head_extra %}
