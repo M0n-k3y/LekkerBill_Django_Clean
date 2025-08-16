@@ -161,7 +161,10 @@ def invoice_create(request):
     # Default due date is 30 days from now, which is required by the model.
     due_date = timezone.now().date() + timedelta(days=30)
 
-    invoice = Invoice.objects.create(user=request.user, customer=first_customer, due_date=due_date)
+    # Set the tax rate from the user's profile by default
+    default_tax_rate = request.user.profile.vat_percentage
+
+    invoice = Invoice.objects.create(user=request.user, customer=first_customer, due_date=due_date, tax_rate=default_tax_rate)
     messages.info(request, "New invoice draft created. You can now add items and details.")
     return redirect('invoice_update', pk=invoice.pk)
 
@@ -171,7 +174,7 @@ def invoice_update(request, pk):
     InvoiceItemFormSet = inlineformset_factory(Invoice, InvoiceItem, form=InvoiceItemForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
-        form = InvoiceForm(request.POST, instance=invoice)
+        form = InvoiceForm(request.POST, instance=invoice, user=request.user)
         formset = InvoiceItemFormSet(request.POST, instance=invoice, prefix='items')
         if form.is_valid() and formset.is_valid():
             form.save()
@@ -179,7 +182,7 @@ def invoice_update(request, pk):
             messages.success(request, "Invoice saved successfully.")
             return redirect('invoice_detail', pk=invoice.pk)
     else:
-        form = InvoiceForm(instance=invoice)
+        form = InvoiceForm(instance=invoice, user=request.user)
         form.fields['customer'].queryset = Customer.objects.filter(user=request.user) # Scope customers to the user
         formset = InvoiceItemFormSet(instance=invoice, prefix='items')
 
@@ -221,7 +224,10 @@ def quote_create(request):
         messages.warning(request, "You must create a customer before you can create a quote.")
         return redirect('customer_create')
 
-    quote = Quote.objects.create(user=request.user, customer=first_customer)
+    # Set the tax rate from the user's profile by default
+    default_tax_rate = request.user.profile.vat_percentage
+
+    quote = Quote.objects.create(user=request.user, customer=first_customer, tax_rate=default_tax_rate)
     messages.info(request, "New quote draft created. You can now add items and details.")
     return redirect('quote_update', pk=quote.pk)
 
@@ -231,7 +237,7 @@ def quote_update(request, pk):
     QuoteItemFormSet = inlineformset_factory(Quote, QuoteItem, form=QuoteItemForm, extra=1, can_delete=True)
 
     if request.method == 'POST':
-        form = QuoteForm(request.POST, instance=quote)
+        form = QuoteForm(request.POST, instance=quote, user=request.user)
         formset = QuoteItemFormSet(request.POST, instance=quote, prefix='items')
         if form.is_valid() and formset.is_valid():
             form.save()
@@ -239,7 +245,7 @@ def quote_update(request, pk):
             messages.success(request, "Quote saved successfully.")
             return redirect('quote_detail', pk=quote.pk)
     else:
-        form = QuoteForm(instance=quote)
+        form = QuoteForm(instance=quote, user=request.user)
         form.fields['customer'].queryset = Customer.objects.filter(user=request.user)
         formset = QuoteItemFormSet(instance=quote, prefix='items')
 
@@ -394,7 +400,12 @@ def reactivate_subscription(request):
 @login_required
 def invoice_pdf(request, pk):
     invoice = get_object_or_404(Invoice, pk=pk, user=request.user)
-    html_string = render_to_string('invoices/invoice_pdf.html', {'invoice': invoice, 'profile': request.user.profile})
+    context = {
+        'invoice': invoice,
+        'profile': request.user.profile,
+        'user': request.user, # Add user to context
+    }
+    html_string = render_to_string('invoices/invoice_pdf.html', context)
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     pdf = html.write_pdf()
     response = HttpResponse(pdf, content_type='application/pdf')
@@ -404,7 +415,12 @@ def invoice_pdf(request, pk):
 @login_required
 def quote_pdf(request, pk):
     quote = get_object_or_404(Quote, pk=pk, user=request.user)
-    html_string = render_to_string('invoices/quote_pdf.html', {'quote': quote, 'profile': request.user.profile})
+    context = {
+        'quote': quote,
+        'profile': request.user.profile,
+        'user': request.user, # Add user to context
+    }
+    html_string = render_to_string('invoices/quote_pdf.html', context)
     html = HTML(string=html_string, base_url=request.build_absolute_uri())
     pdf = html.write_pdf()
     response = HttpResponse(pdf, content_type='application/pdf')

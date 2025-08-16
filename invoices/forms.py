@@ -1,4 +1,5 @@
 from django import forms
+from decimal import Decimal
 from .models import Customer, InventoryItem, Quote, Invoice, Profile, InvoiceItem, QuoteItem
 from django.contrib.auth.forms import UserCreationForm
 
@@ -61,11 +62,27 @@ class InvoiceForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
         # Add ID for Tom-select JavaScript
         self.fields['customer'].widget.attrs.update({'id': 'customer-select'})
+
+        if user and hasattr(user, 'profile'):
+            profile = user.profile
+            default_tax = profile.vat_percentage
+            tax_choices = [
+                (Decimal('0.00'), 'None (0%)'),
+                (default_tax, f'Default ({default_tax}%)')
+            ]
+            # If the default tax is 0, the list would have two identical '0.00' options.
+            # This removes the duplicate 'Default (0%)' to keep the dropdown clean.
+            if default_tax == Decimal('0.00'):
+                tax_choices.pop()
+
+            self.fields['tax_rate'] = forms.ChoiceField(choices=tax_choices, widget=forms.Select(attrs={'class': 'form-select'}))
 
 
 class QuoteForm(forms.ModelForm):
@@ -77,11 +94,27 @@ class QuoteForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
+
         for field in self.fields.values():
             field.widget.attrs.update({'class': 'form-control'})
         # Add ID for Tom-select JavaScript
         self.fields['customer'].widget.attrs.update({'id': 'customer-select'})
+
+        if user and hasattr(user, 'profile'):
+            profile = user.profile
+            default_tax = profile.vat_percentage
+            tax_choices = [
+                (Decimal('0.00'), 'None (0%)'),
+                (default_tax, f'Default ({default_tax}%)')
+            ]
+            # If the default tax is 0, the list would have two identical '0.00' options.
+            # This removes the duplicate 'Default (0%)' to keep the dropdown clean.
+            if default_tax == Decimal('0.00'):
+                tax_choices.pop()
+
+            self.fields['tax_rate'] = forms.ChoiceField(choices=tax_choices, widget=forms.Select(attrs={'class': 'form-select'}))
 
 
 class InvoiceItemForm(forms.ModelForm):
