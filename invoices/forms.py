@@ -50,6 +50,16 @@ class ProfileForm(forms.ModelForm):
             # The logo is a FileInput, which Bootstrap styles differently, so we skip it.
             if field_name != 'logo':
                 field.widget.attrs.update({'class': 'form-control'})
+        
+        # Format the numbering fields to have leading zeros for display
+        if self.instance:
+            # We use TextInput to allow for the custom string format.
+            # Django's ModelForm is smart enough to convert "0001" back to an integer 1 on save.
+            self.fields['invoice_next_number'].widget = forms.TextInput(attrs={'class': 'form-control'})
+            self.initial['invoice_next_number'] = f"{self.instance.invoice_next_number:04d}"
+
+            self.fields['quote_next_number'].widget = forms.TextInput(attrs={'class': 'form-control'})
+            self.initial['quote_next_number'] = f"{self.instance.quote_next_number:04d}"
 
 
 class InvoiceForm(forms.ModelForm):

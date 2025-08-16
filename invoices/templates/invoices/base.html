@@ -17,6 +17,34 @@
     <!-- Tom-select CSS for better dropdowns -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.css" rel="stylesheet">
 
+    <!-- Custom CSS overrides for theme consistency -->
+    <style>
+        /*
+          This block overrides the default "Superhero" dark theme's orange accent
+          with the "Minty" light theme's primary color for brand consistency.
+        */
+        [data-bs-theme="dark"] {
+            --bs-primary: #78c1ad;
+            --bs-primary-rgb: 120, 193, 173;
+        }
+
+        /* Superhero theme hardcodes its primary color in some components, so we override them here. */
+        [data-bs-theme="dark"] .btn-primary,
+        [data-bs-theme="dark"] .list-group-item.active {
+            background-color: var(--bs-primary);
+            border-color: var(--bs-primary);
+            color: #000; /* Mint is a light color, so it needs dark text for contrast. */
+        }
+
+        /* Ensure hover/focus states also use the correct colors. */
+        [data-bs-theme="dark"] .btn-primary:hover,
+        [data-bs-theme="dark"] .btn-primary:focus {
+            background-color: #6ab3a1; /* A slightly darker mint for interaction */
+            border-color: #63a896;
+            color: #000;
+        }
+    </style>
+
     {% block head_extra %}
         <!-- PWA Manifest Link -->
         <link rel="manifest" href="{% static 'invoices/manifest.json' %}">
@@ -126,7 +154,8 @@
                     document.documentElement.setAttribute('data-bs-theme', 'dark');
                     lightTheme.disabled = true;
                     darkTheme.disabled = false;
-                    mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-dark';
+                    // Use bg-primary in dark mode as well for color consistency
+                    mainNavbar.className = 'navbar navbar-expand-lg navbar-dark bg-primary';
                 } else {
                     document.documentElement.setAttribute('data-bs-theme', 'light');
                     lightTheme.disabled = false;
