@@ -36,6 +36,7 @@ def dashboard(request):
         'customer_count': Customer.objects.filter(user=request.user).count(),
         'quote_count': Quote.objects.filter(user=request.user).count(),
         'invoice_count': Invoice.objects.filter(user=request.user).count(),
+        'inventory_count': InventoryItem.objects.filter(user=request.user).count(),
         'recent_invoices': Invoice.objects.filter(user=request.user)
                                         .select_related('customer')
                                         .order_by('-invoice_date')[:5],

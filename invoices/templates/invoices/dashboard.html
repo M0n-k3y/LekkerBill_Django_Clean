@@ -14,34 +14,57 @@
 </div>
 {% endif %}
 
+{# We now have 4 cards, so we adjust the grid columns for better responsiveness #}
 <div class="row">
     {#Card 1: Customers #}
-    <div class="col-md-4 mb-4">
+    <div class="col-lg-3 col-md-6 mb-4">
         <div class="card shadow-sm">
             <div class="card-body text-center">
                 <h5 class="card-title">Total Customers</h5>
                 <p class="card-text fs-1 fw-bold">{{ customer_count }}</p>
-                <a href="{% url 'customer_list' %}" class="btn btn-primary">View Customers</a>
+                <div class="btn-group" role="group">
+                    <a href="{% url 'customer_list' %}" class="btn btn-primary">View</a>
+                    <a href="{% url 'customer_create' %}" class="btn btn-outline-primary">New</a>
+                </div>
             </div>
         </div>
     </div>
     {#Card 2: Quotes #}
-    <div class="col-md-4 mb-4">
+    <div class="col-lg-3 col-md-6 mb-4">
         <div class="card shadow-sm">
             <div class="card-body text-center">
                 <h5 class="card-title">Total Quotes</h5>
                 <p class="card-text fs-1 fw-bold">{{ quote_count }}</p>
-                <a href="{% url 'quote_list' %}" class="btn btn-primary">View Quotes</a>
+                <div class="btn-group" role="group">
+                    <a href="{% url 'quote_list' %}" class="btn btn-primary">View</a>
+                    <a href="{% url 'quote_create' %}" class="btn btn-outline-primary">New</a>
+                </div>
             </div>
         </div>
     </div>
     {#Card 3: Invoices #}
-    <div class="col-md-4 mb-4">
+    <div class="col-lg-3 col-md-6 mb-4">
         <div class="card shadow-sm">
             <div class="card-body text-center">
                 <h5 class="card-title">Total Invoices</h5>
                 <p class="card-text fs-1 fw-bold">{{ invoice_count }}</p>
-                <a href="{% url 'invoice_list' %}" class="btn btn-primary">View Invoices</a>
+                <div class="btn-group" role="group">
+                    <a href="{% url 'invoice_list' %}" class="btn btn-primary">View</a>
+                    <a href="{% url 'invoice_create' %}" class="btn btn-outline-primary">New</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {#Card 4: Inventory #}
+    <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                <h5 class="card-title">Inventory Items</h5>
+                <p class="card-text fs-1 fw-bold">{{ inventory_count }}</p>
+                <div class="btn-group" role="group">
+                    <a href="{% url 'inventory_list' %}" class="btn btn-primary">View</a>
+                    <a href="{% url 'inventory_create' %}" class="btn btn-outline-primary">New</a>
+                </div>
             </div>
         </div>
     </div>
