@@ -73,16 +73,30 @@ class InvoiceForm(forms.ModelForm):
         if user and hasattr(user, 'profile'):
             profile = user.profile
             default_tax = profile.vat_percentage
-            tax_choices = [
-                (Decimal('0.00'), 'None (0%)'),
-                (default_tax, f'Default ({default_tax}%)')
-            ]
-            # If the default tax is 0, the list would have two identical '0.00' options.
-            # This removes the duplicate 'Default (0%)' to keep the dropdown clean.
-            if default_tax == Decimal('0.00'):
-                tax_choices.pop()
 
-            self.fields['tax_rate'] = forms.ChoiceField(choices=tax_choices, widget=forms.Select(attrs={'class': 'form-select'}))
+            # Use a dictionary to build choices, ensuring unique keys (tax rates)
+            # and controlling the labels. This prevents the tax rate from being
+            # accidentally reset if the user's default tax changes.
+            tax_choices_dict = {
+                Decimal('0.00'): 'None (0%)'
+            }
+
+            # Add the default tax rate, formatted as a whole number
+            tax_choices_dict[default_tax] = f'Default ({default_tax:.0f}%)'
+
+            # If the instance has a tax rate that's not already in our choices, add it.
+            if self.instance and self.instance.pk and self.instance.tax_rate is not None:
+                current_tax = self.instance.tax_rate
+                if current_tax not in tax_choices_dict:
+                    tax_choices_dict[current_tax] = f'{current_tax:.0f}% (current)'
+
+            # Convert the dictionary to a list of tuples and sort by the tax rate.
+            sorted_tax_choices = sorted(tax_choices_dict.items())
+
+            self.fields['tax_rate'] = forms.ChoiceField(
+                choices=sorted_tax_choices,
+                widget=forms.Select(attrs={'class': 'form-select'})
+            )
 
 
 class QuoteForm(forms.ModelForm):
@@ -106,16 +120,30 @@ class QuoteForm(forms.ModelForm):
         if user and hasattr(user, 'profile'):
             profile = user.profile
             default_tax = profile.vat_percentage
-            tax_choices = [
-                (Decimal('0.00'), 'None (0%)'),
-                (default_tax, f'Default ({default_tax}%)')
-            ]
-            # If the default tax is 0, the list would have two identical '0.00' options.
-            # This removes the duplicate 'Default (0%)' to keep the dropdown clean.
-            if default_tax == Decimal('0.00'):
-                tax_choices.pop()
 
-            self.fields['tax_rate'] = forms.ChoiceField(choices=tax_choices, widget=forms.Select(attrs={'class': 'form-select'}))
+            # Use a dictionary to build choices, ensuring unique keys (tax rates)
+            # and controlling the labels. This prevents the tax rate from being
+            # accidentally reset if the user's default tax changes.
+            tax_choices_dict = {
+                Decimal('0.00'): 'None (0%)'
+            }
+
+            # Add the default tax rate, formatted as a whole number
+            tax_choices_dict[default_tax] = f'Default ({default_tax:.0f}%)'
+
+            # If the instance has a tax rate that's not already in our choices, add it.
+            if self.instance and self.instance.pk and self.instance.tax_rate is not None:
+                current_tax = self.instance.tax_rate
+                if current_tax not in tax_choices_dict:
+                    tax_choices_dict[current_tax] = f'{current_tax:.0f}% (current)'
+
+            # Convert the dictionary to a list of tuples and sort by the tax rate.
+            sorted_tax_choices = sorted(tax_choices_dict.items())
+
+            self.fields['tax_rate'] = forms.ChoiceField(
+                choices=sorted_tax_choices,
+                widget=forms.Select(attrs={'class': 'form-select'})
+            )
 
 
 class InvoiceItemForm(forms.ModelForm):
