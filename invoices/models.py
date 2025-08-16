@@ -92,6 +92,7 @@ class Quote(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='quotes')
     quote_number = models.CharField(max_length=50, blank=True, null=True)
     quote_date = models.DateField(default=timezone.now)
+    valid_until = models.DateField(blank=True, null=True, help_text="The date the quote is valid until.")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
     public_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)

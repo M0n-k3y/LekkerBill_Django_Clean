@@ -88,9 +88,10 @@ class InvoiceForm(forms.ModelForm):
 class QuoteForm(forms.ModelForm):
     class Meta:
         model = Quote
-        fields = ['customer', 'quote_date', 'status', 'tax_rate']
+        fields = ['customer', 'quote_date', 'valid_until', 'status', 'tax_rate']
         widgets = {
             'quote_date': forms.DateInput(attrs={'type': 'date'}),
+            'valid_until': forms.DateInput(attrs={'type': 'date'}),
         }
 
     def __init__(self, *args, **kwargs):
