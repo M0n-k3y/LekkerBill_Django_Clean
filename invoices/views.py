@@ -8,14 +8,19 @@ from django.template.loader import render_to_string
 from django.forms import inlineformset_factory
 from django.utils import timezone
 from django.conf import settings
+from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from datetime import timedelta
+import logging
 import hashlib
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote_plus
+import requests
 from weasyprint import HTML # Removed unused signal import
 from payfast.forms import PayFastForm # This now correctly imports from your local app
 from .forms import SignUpForm, CustomerForm, InventoryItemForm, ProfileForm, InvoiceForm, QuoteForm, InvoiceItemForm, QuoteItemForm
 from .models import Customer, Quote, Invoice, Subscription, InventoryItem, Profile, InvoiceItem, QuoteItem, Notification
+
+logger = logging.getLogger(__name__)
 
 def signup(request):
     if request.method == 'POST':
@@ -467,25 +472,77 @@ def upgrade_to_pro(request):
         'title': 'Redirecting to PayFast...'
     })
 
-@login_required
-def cancel_subscription(request):
-    """Cancels a user's active subscription."""
-    # In a full production app, you would also call the PayFast API to cancel the token.
-    # For now, we'll just update the local status.
-    subscription = request.user.subscription
-    if subscription.plan == 'pro' and subscription.status == 'active':
-        subscription.status = 'cancelled'
-        # The subscription remains active until the end of the current paid period.
-        subscription.save()
-        messages.success(request, "Your Pro subscription has been cancelled. You will retain Pro features until your current billing period ends.")
+def _cancel_payfast_subscription(token: str) -> bool:
+    """
+    Sends a request to the PayFast API to cancel a subscription token.
+    Returns True on success, False on failure.
+    """
+    if not token:
+        return False
+
+    # Determine the correct API endpoint
+    if settings.PAYFAST_SANDBOX_MODE:
+        api_url = f"https://sandbox.payfast.co.za/subscriptions/{token}/cancel"
     else:
+        api_url = f"https://api.payfast.co.za/subscriptions/{token}/cancel"
+
+    # Prepare headers for the API request
+    timestamp = timezone.now().strftime('%Y-%m-%dT%H:%M:%S')
+    headers_for_signature = {
+        'merchant-id': settings.PAYFAST_MERCHANT_ID,
+        'version': 'v1',
+        'timestamp': timestamp,
+    }
+
+    # Generate the signature for the API call
+    payload_string = urlencode(sorted(headers_for_signature.items()))
+    passphrase = settings.PAYFAST_PASSPHRASE
+    if passphrase:
+        payload_string += f"&passphrase={quote_plus(passphrase)}"
+
+    signature = hashlib.md5(payload_string.encode('utf-8')).hexdigest()
+
+    # Final headers for the request
+    request_headers = {**headers_for_signature, 'signature': signature}
+
+    try:
+        response = requests.put(api_url, headers=request_headers, timeout=10)
+        response.raise_for_status()
+        response_data = response.json()
+        if response_data.get('status') == 'success':
+            logger.info(f"Successfully cancelled PayFast subscription with token: {token}")
+            return True
+        else:
+            logger.error(f"PayFast API returned an error for token {token}: {response.text}")
+            return False
+    except (requests.RequestException, ValueError) as e:
+        logger.error(f"Failed to send cancellation request to PayFast for token {token}: {e}")
+        return False
+
+@login_required
+@require_POST # Ensure this can only be accessed via a POST request
+def cancel_subscription(request):
+    """Cancels a user's active subscription both locally and on PayFast."""
+    subscription = request.user.subscription
+    if not (subscription.plan == 'pro' and subscription.status == 'active' and subscription.payfast_token):
         messages.warning(request, "You do not have an active Pro subscription to cancel.")
+    elif _cancel_payfast_subscription(subscription.payfast_token):
+        subscription.status = 'cancelled'
+        subscription.save()
+        messages.success(request, "Your Pro subscription has been successfully cancelled with PayFast. You will retain Pro features until your current billing period ends.")
+    else:
+        messages.error(request, "We could not automatically cancel your subscription with PayFast. Please contact support.")
     return redirect('subscription_detail')
 
 @login_required
+@require_POST # Ensure this can only be accessed via a POST request
 def reactivate_subscription(request):
-    messages.info(request, "Subscription management is coming soon.")
-    return redirect('subscription_detail')
+    """
+    Reactivating a cancelled subscription means starting a new one.
+    This view redirects the user to the upgrade flow.
+    """
+    messages.info(request, "To reactivate your subscription, please complete the upgrade process again.")
+    return redirect('upgrade_to_pro')
 
 # --- PayFast Integration Views ---
 
