@@ -16,6 +16,11 @@ class CustomerForm(forms.ModelForm):
             'address': forms.Textarea(attrs={'rows': 3}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
 
 class InventoryItemForm(forms.ModelForm):
     class Meta:
@@ -24,6 +29,11 @@ class InventoryItemForm(forms.ModelForm):
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
 
 
 class ProfileForm(forms.ModelForm):
@@ -50,6 +60,13 @@ class InvoiceForm(forms.ModelForm):
             'due_date': forms.DateInput(attrs={'type': 'date'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+        # Add ID for Tom-select JavaScript
+        self.fields['customer'].widget.attrs.update({'id': 'customer-select'})
+
 
 class QuoteForm(forms.ModelForm):
     class Meta:
@@ -58,3 +75,10 @@ class QuoteForm(forms.ModelForm):
         widgets = {
             'quote_date': forms.DateInput(attrs={'type': 'date'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+        # Add ID for Tom-select JavaScript
+        self.fields['customer'].widget.attrs.update({'id': 'customer-select'})

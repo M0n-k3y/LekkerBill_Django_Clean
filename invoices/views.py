@@ -148,9 +148,16 @@ def invoice_detail(request, pk):
 
 @login_required
 def invoice_create(request):
-    # This is a simplified create view. The real power is in the update view with formsets.
-    invoice = Invoice.objects.create(user=request.user, customer=Customer.objects.filter(user=request.user).first())
-    messages.info(request, "New invoice draft created. Please add items and details.")
+    first_customer = Customer.objects.filter(user=request.user).first()
+    if not first_customer:
+        messages.warning(request, "You must create a customer before you can create an invoice.")
+        return redirect('customer_create')
+
+    # Default due date is 30 days from now, which is required by the model.
+    due_date = timezone.now().date() + timedelta(days=30)
+
+    invoice = Invoice.objects.create(user=request.user, customer=first_customer, due_date=due_date)
+    messages.info(request, "New invoice draft created. You can now add items and details.")
     return redirect('invoice_update', pk=invoice.pk)
 
 @login_required
@@ -202,8 +209,13 @@ def quote_detail(request, pk):
 
 @login_required
 def quote_create(request):
-    quote = Quote.objects.create(user=request.user, customer=Customer.objects.filter(user=request.user).first())
-    messages.info(request, "New quote draft created. Please add items and details.")
+    first_customer = Customer.objects.filter(user=request.user).first()
+    if not first_customer:
+        messages.warning(request, "You must create a customer before you can create a quote.")
+        return redirect('customer_create')
+
+    quote = Quote.objects.create(user=request.user, customer=first_customer)
+    messages.info(request, "New quote draft created. You can now add items and details.")
     return redirect('quote_update', pk=quote.pk)
 
 @login_required
