@@ -32,6 +32,14 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         exclude = ['user'] # Let the view handle the user
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add the 'form-control' class to all visible fields for Bootstrap styling
+        for field_name, field in self.fields.items():
+            # The logo is a FileInput, which Bootstrap styles differently, so we skip it.
+            if field_name != 'logo':
+                field.widget.attrs.update({'class': 'form-control'})
+
 
 class InvoiceForm(forms.ModelForm):
     class Meta:
